@@ -8,6 +8,7 @@ import "./styles/story.css";
 import "./styles/gallery.css";
 import "./styles/letter.css";
 import "./styles/pages.css";
+import "./styles/profile.css";
 import "./styles/music-player.css";
 import "./styles/admin.css";
 import "./styles/edit.css";

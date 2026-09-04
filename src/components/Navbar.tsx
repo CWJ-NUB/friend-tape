@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 
 const LINKS = [
+  { to: "/profile", label: "我们" },
   { to: "/story", label: "时间线" },
   { to: "/gallery", label: "相册" },
   { to: "/letter", label: "信件墙" },
@@ -50,6 +51,9 @@ export default function Navbar() {
           <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>
             首页
           </NavLink>
+          <NavLink to="/profile" className={({ isActive }) => (isActive ? "active" : "")}>
+            我们
+          </NavLink>
           <NavLink to="/story" className={({ isActive }) => (isActive ? "active" : "")}>
             时间线
           </NavLink>
@@ -70,7 +74,7 @@ export default function Navbar() {
         <div className="nav-sheet no-spark" onClick={() => setSheet(false)}>
           <div className="nav-sheet-panel glass" onClick={(e) => e.stopPropagation()}>
             <div className="sheet-title">MORE · 更多板块</div>
-            {LINKS.slice(3).map((l) => (
+            {LINKS.slice(4).map((l) => (
               <Link key={l.to} to={l.to} onClick={() => setSheet(false)}>
                 {l.label}
                 <span className="mono">{loc.pathname === l.to ? "● 当前" : "→"}</span>

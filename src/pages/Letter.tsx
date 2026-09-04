@@ -2,13 +2,23 @@ import { useEffect, useState } from "react";
 import { useContent } from "../content/ContentContext";
 import Reveal from "../components/Reveal";
 import { EAdd, EDate, EDel, EText, ETextarea, euid } from "../components/Editable";
-import type { LetterContent } from "../content/types";
+import type { Content, LetterContent, Profile } from "../content/types";
+
+/** 按「寄件人」匹配名片:名字或昵称对上 → 返回头像,信封封蜡直接用 */
+function findAvatar(content: Content, name: string): Profile | null {
+  const n = (name || "").trim();
+  if (!n) return null;
+  const eq = (a: string) => (a || "").trim() === n;
+  const hit = [content.me, content.friend].find((p) => eq(p.name) || eq(p.nickname));
+  return hit?.avatar ? hit : null;
+}
 
 /**
  * 信件墙:两人各写各的,一人一封。
  * 点击信封卡 → 玻璃信封弹层自动播放拆信动画(封蜡弹开 → 封口翻起 → 信纸升起)
  * → 玻璃信卡浮现正文。
  * 编辑模式:卡片上的收发件人/标题/日期可直接改,点开信卡可改正文。
+ * 寄件人在「我们」页上传过头像的,封蜡显示头像而非首字。
  */
 export default function Letter() {
   const { content, update, editing } = useContent();
@@ -81,7 +91,13 @@ export default function Letter() {
                 onClick={() => setActiveId(l.id)}
               >
                 <div className="lcard-top">
-                  <div className="lcard-seal">{(l.from || "信").trim().charAt(0)}</div>
+                  <div className="lcard-seal" title={l.from}>
+                    {findAvatar(content, l.from) ? (
+                      <img src={findAvatar(content, l.from)!.avatar} alt={l.from} />
+                    ) : (
+                      (l.from || "信").trim().charAt(0)
+                    )}
+                  </div>
                   <div className="lcard-route">
                     FROM <b><EText value={l.from} onChange={(v) => patchLetter(l.id, { from: v })} placeholder="寄件人" /></b>
                     <br />
@@ -116,7 +132,13 @@ export default function Letter() {
                   <span>✉</span>
                 </div>
                 <div className="envm-flap" />
-                <div className="envm-seal">{(active.from || "信").trim().charAt(0)}</div>
+                <div className="envm-seal">
+                  {findAvatar(content, active.from) ? (
+                    <img src={findAvatar(content, active.from)!.avatar} alt={active.from} />
+                  ) : (
+                    (active.from || "信").trim().charAt(0)
+                  )}
+                </div>
               </div>
             )}
 

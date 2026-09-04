@@ -421,6 +421,14 @@ function ProfileForm({
   edit: (fn: (p: Profile) => Profile) => void;
 }) {
   const set = (patch: Partial<Profile>) => edit((x) => ({ ...x, ...patch }));
+  const [tagDraft, setTagDraft] = useState("");
+  const addTag = () => {
+    const t = tagDraft.trim();
+    if (!t || p.tags.includes(t)) return;
+    set({ tags: [...p.tags, t] });
+    setTagDraft("");
+  };
+  const delTag = (t: string) => set({ tags: p.tags.filter((x) => x !== t) });
   return (
     <>
       <h3>{title}</h3>
@@ -445,6 +453,40 @@ function ProfileForm({
         <div className="full">
           <label className="field">签名一句话</label>
           <input className="input" value={p.signature} onChange={(e) => set({ signature: e.target.value })} />
+        </div>
+        <div className="full">
+          <label className="field">自我介绍</label>
+          <textarea
+            className="textarea"
+            value={p.about}
+            placeholder="写点自我介绍,会展示在「我们」页…"
+            onChange={(e) => set({ about: e.target.value })}
+          />
+        </div>
+        <div className="full">
+          <label className="field">个人标签(回车添加)</label>
+          <input
+            className="input"
+            value={tagDraft}
+            placeholder="如:咖啡脑袋 / 夜猫子 / 唱歌跑调大师…"
+            onChange={(e) => setTagDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
+          />
+          {p.tags.length > 0 && (
+            <div className="profile-tags-edit">
+              {p.tags.map((t) => (
+                <span key={t} className="ptag no-spark">
+                  {t}
+                  <button onClick={() => delTag(t)} title="删除标签">✕</button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="full">
           <label className="field">头像</label>

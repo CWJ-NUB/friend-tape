@@ -5,6 +5,10 @@ export interface Profile {
   avatar: string;
   birthday: string;
   role: string;
+  /** 个人标签,如 "咖啡脑袋" "夜猫子" */
+  tags: string[];
+  /** 自我介绍 */
+  about: string;
 }
 
 export interface TimelineEvent {

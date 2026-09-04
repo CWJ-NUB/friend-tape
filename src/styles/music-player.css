@@ -1,37 +1,83 @@
-/* ============ 音乐胶囊 · 液态玻璃 ============ */
+/* ============ 音乐:右下角圆钮 + 玻璃面板 ============ */
 
-.tape {
+.music-fab {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 900;
-  width: 196px;
-  padding: 12px 14px 12px;
+  right: 20px;
+  bottom: 20px;
+  z-index: 950;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  user-select: none;
+  transition: transform 0.2s;
 }
-.tape:hover { transform: translateY(-3px); }
+.music-fab:hover { transform: translateY(-2px); }
+.music-fab .music-fab-note { font-size: 17px; line-height: 1; }
+.music-fab.on .music-fab-note { animation: note-bounce 1.1s ease-in-out infinite; }
+@keyframes note-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
 
-.tape-label {
-  margin-bottom: 8px;
-  color: var(--ink-2);
+.music-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 78px;
+  z-index: 940;
+  width: 300px;
+  max-width: calc(100vw - 28px);
+  padding: 16px 18px 14px;
+  animation: mp-in 0.3s ease both;
+}
+@keyframes mp-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.mp-head { margin-bottom: 12px; }
+.mp-label {
+  display: block;
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.12em;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  letter-spacing: 0.22em;
+  color: var(--ink-3);
+  margin-bottom: 5px;
 }
-.tape-label b {
+.mp-title { display: block; font-size: 15px; }
+
+.mp-edit { margin-bottom: 12px; }
+.mp-edit-label {
   display: block;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  margin-bottom: 3px;
-  color: var(--ink);
+  font-size: 11px;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+.mp-edit .input { width: 100%; font-size: 12.5px; }
+
+.mp-empty {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  text-align: center;
+  padding: 16px 0;
 }
 
-.tape-window {
-  height: 44px;
+/* 网易云/QQ音乐 官方外链播放器 */
+.mp-embed {
+  width: 100%;
+  height: 88px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  display: block;
+}
+
+/* 直链:内置迷你磁带机 */
+.mp-body { padding: 2px 0; }
+.mp-reels {
+  height: 40px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.42);
   border: 1px solid rgba(255, 255, 255, 0.85);
@@ -41,67 +87,64 @@
   position: relative;
   box-shadow: inset 0 1px 4px rgba(92, 104, 86, 0.1);
 }
-
-.tape-reel {
-  width: 24px;
-  height: 24px;
+.mp-reel {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 2px solid rgba(111, 130, 96, 0.7);
   position: relative;
 }
-.tape-reel::before, .tape-reel::after {
+.mp-reel::before,
+.mp-reel::after {
   content: "";
   position: absolute;
   background: rgba(111, 130, 96, 0.7);
   border-radius: 2px;
 }
-.tape-reel::before { width: 12px; height: 2px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.tape-reel::after { width: 2px; height: 12px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-
-.tape.playing .tape-reel { animation: reel-spin 1.6s linear infinite; }
-
-@keyframes reel-spin { to { transform: rotate(360deg); } }
-
-.tape-tape-line {
+.mp-reel::before { width: 10px; height: 2px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.mp-reel::after { width: 2px; height: 10px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.music-panel.playing .mp-reel { animation: mp-reel-spin 1.6s linear infinite; }
+@keyframes mp-reel-spin { to { transform: rotate(360deg); } }
+.mp-line {
   position: absolute;
-  left: 34px;
-  right: 34px;
+  left: 26px;
+  right: 26px;
   top: 50%;
   height: 1.5px;
   background: linear-gradient(to right, rgba(111, 130, 96, 0.15), rgba(111, 130, 96, 0.45), rgba(111, 130, 96, 0.15));
 }
 
-.tape-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding-top: 10px;
-}
-
-.tape-btn {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  color: var(--accent);
-  background: rgba(255, 255, 255, 0.55);
+.mp-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.mp-play {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 999px;
-  padding: 4px 14px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--accent);
+  font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  flex: none;
 }
-.tape-btn:hover { background: rgba(255, 255, 255, 0.85); }
+.mp-play:hover { background: #fff; }
+.mp-vol-icon { color: var(--ink-3); font-size: 12px; }
+.mp-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+.mp-err { margin-top: 8px; font-size: 11px; color: #b4432f; line-height: 1.6; }
 
-.tape-hint {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--ink-3);
-  letter-spacing: 0.2em;
-}
-
-@media (max-width: 640px) {
-  .tape { width: 156px; right: 12px; bottom: 86px; }
-  .tape-window { height: 36px; }
-  .tape-hint { display: none; }
+/* 移动端:圆钮在 Dock 上方,小尺寸不挡内容 */
+@media (max-width: 900px) {
+  .music-fab {
+    right: 14px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    width: 42px;
+    height: 42px;
+  }
+  .music-fab .music-fab-note { font-size: 15px; }
+  .music-panel {
+    right: 14px;
+    bottom: calc(136px + env(safe-area-inset-bottom));
+  }
+  /* 编辑模式:让位于底部保存条 */
+  body.editing .music-fab { bottom: calc(146px + env(safe-area-inset-bottom)); }
+  body.editing .music-panel { bottom: calc(198px + env(safe-area-inset-bottom)); }
 }

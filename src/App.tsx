@@ -7,6 +7,7 @@ import Sparkle from "./components/Sparkle";
 import MusicPlayer from "./components/MusicPlayer";
 import { EditUI } from "./components/Editable";
 import Home from "./pages/Home";
+import ProfilePage from "./pages/Profile";
 import Story from "./pages/Story";
 import Gallery from "./pages/Gallery";
 import Letter from "./pages/Letter";
@@ -41,6 +42,7 @@ function Shell() {
       <Navbar />
       <Routes location={displayLoc}>
         <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/story" element={<Story />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/letter" element={<Letter />} />

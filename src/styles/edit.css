@@ -207,9 +207,6 @@ body.editing .eadd { display: block; }
   box-shadow: 0 4px 14px rgba(92, 104, 86, 0.2);
 }
 
-/* 编辑时隐藏音乐胶囊,避免与保存条打架 */
-body.editing .tape { display: none; }
-
 @media (max-width: 900px) {
   .efab {
     left: 14px;
