@@ -1,0 +1,330 @@
+/* ================================================================
+   设计系统 v2.1 · OUR TAPE
+   苔绿灰自然色 · 液态玻璃(Liquid Glass)· 双主角共同叙事
+   原则:自然色低饱和 / 单一苔绿点缀 / 玻璃勿叠玻璃
+================================================================ */
+
+:root {
+  /* 底色:米白偏灰绿 */
+  --bg: #eff1ec;
+  --bg-2: #f4f4ee;
+
+  /* 墨色:绿灰阶 */
+  --ink: #262b24;
+  --ink-2: #575f53;
+  --ink-3: #98a093;
+
+  /* 玻璃材质 */
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.74);
+  --glass-weak: rgba(255, 255, 255, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-shadow: 0 10px 34px rgba(92, 104, 86, 0.13);
+
+  /* 点缀:苔绿→亚麻(近似双色,克制使用;--iri 为历史命名) */
+  --iri: linear-gradient(135deg, #8ba07c, #b5bd9e);
+  --iri-soft: linear-gradient(135deg, rgba(139, 160, 124, 0.12), rgba(181, 189, 158, 0.12));
+  --accent: #6f8260;
+
+  --radius: 22px;
+  --radius-sm: 14px;
+
+  --font-sans: -apple-system, "SF Pro Display", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  --font-serif: Georgia, "Times New Roman", "STSong", "SimSun", serif;
+  --font-mono: "SF Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root { min-height: 100vh; }
+
+::selection { background: rgba(111, 130, 96, 0.22); color: var(--ink); }
+
+/* ============ 极光背景(晨雾淡彩,缓慢流动) ============ */
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: linear-gradient(160deg, #eef0e9 0%, #f5f4ee 48%, #eff1ea 100%);
+}
+
+.aurora .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(95px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.aurora .b1 {
+  width: 56vmax; height: 56vmax;
+  left: -16vmax; top: -20vmax;
+  background: radial-gradient(circle, #cfd9c4 0%, transparent 65%);
+  animation: drift-a 36s ease-in-out infinite alternate;
+}
+.aurora .b2 {
+  width: 48vmax; height: 48vmax;
+  right: -14vmax; top: -8vmax;
+  background: radial-gradient(circle, #e2e6d5 0%, transparent 65%);
+  animation: drift-b 42s ease-in-out infinite alternate;
+}
+.aurora .b3 {
+  width: 52vmax; height: 52vmax;
+  left: -10vmax; bottom: -22vmax;
+  background: radial-gradient(circle, #e9e4d4 0%, transparent 65%);
+  animation: drift-c 38s ease-in-out infinite alternate;
+}
+.aurora .b4 {
+  width: 46vmax; height: 46vmax;
+  right: -12vmax; bottom: -16vmax;
+  background: radial-gradient(circle, #d6dcc8 0%, transparent 65%);
+  animation: drift-d 44s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a { to { transform: translate(9vmax, 7vmax) scale(1.14); } }
+@keyframes drift-b { to { transform: translate(-8vmax, 9vmax) scale(1.1); } }
+@keyframes drift-c { to { transform: translate(10vmax, -8vmax) scale(1.16); } }
+@keyframes drift-d { to { transform: translate(-9vmax, -7vmax) scale(1.12); } }
+
+/* 细噪点,避免渐变色带 */
+.aurora .noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.55 0 0 0 0 0.65 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ 玻璃面板(核心材质) ============ */
+
+.glass {
+  position: relative;
+  background: var(--glass);
+  backdrop-filter: blur(26px) saturate(170%);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transition: box-shadow 0.35s ease, transform 0.35s ease, background 0.35s ease;
+}
+
+/* 鼠标跟随的液态高光(由 GlassSpecular 组件注入 --mx/--my) */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+.glass:hover::after { opacity: 1; }
+
+.glass-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 44px rgba(92, 104, 86, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* ============ 版式 ============ */
+
+.page {
+  min-height: 100vh;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 128px 24px 110px;
+  animation: liquid-in 0.7s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+}
+
+@keyframes liquid-in {
+  from { opacity: 0; transform: translateY(22px) scale(0.985); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+.page-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.page-tag::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(130, 140, 122, 0.35), transparent);
+}
+
+.page-title {
+  font-size: clamp(32px, 5.6vw, 50px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 16px 0 10px;
+  color: var(--ink);
+}
+
+.page-sub {
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.95;
+  margin-bottom: 48px;
+  max-width: 620px;
+}
+
+.mono { font-family: var(--font-mono); letter-spacing: 0.12em; }
+
+/* 虹彩渐变文字 */
+.iri-text {
+  background: var(--iri);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============ 按钮 ============ */
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  padding: 13px 30px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.28s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(92, 104, 86, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* 主按钮:虹彩流光 */
+.btn-iri {
+  color: #fff;
+  background: var(--iri);
+  background-size: 180% 180%;
+  border: none;
+  box-shadow: 0 10px 30px rgba(111, 130, 96, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: iri-flow 6s ease infinite;
+}
+.btn-iri:hover {
+  box-shadow: 0 16px 40px rgba(111, 130, 96, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+@keyframes iri-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ============ 输入控件(磨砂玻璃) ============ */
+
+.input, .textarea, .select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  padding: 12px 15px;
+  line-height: 1.7;
+  box-shadow: inset 0 1px 3px rgba(92, 104, 86, 0.08);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.textarea { resize: vertical; min-height: 92px; }
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: rgba(111, 130, 96, 0.55);
+  box-shadow: 0 0 0 3px rgba(111, 130, 96, 0.14);
+}
+.input::placeholder, .textarea::placeholder { color: var(--ink-3); }
+label.field {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--ink-2);
+  margin-bottom: 7px;
+}
+
+/* ============ 液态浮现(滚动渐显) ============ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px) scale(0.97);
+  filter: blur(9px);
+  transition: opacity 0.95s cubic-bezier(0.22, 0.8, 0.25, 1),
+              transform 0.95s cubic-bezier(0.22, 0.8, 0.25, 1),
+              filter 0.95s cubic-bezier(0.22, 0.8, 0.25, 1);
+}
+.reveal.revealed { opacity: 1; transform: none; filter: none; }
+
+/* ============ 点击玻璃珠彩蛋 ============ */
+
+.orb {
+  position: fixed;
+  z-index: 3000;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), var(--c, #a5b4fc) 62%);
+  box-shadow: 0 0 14px var(--c, #a5b4fc), inset 0 -2px 5px rgba(255, 255, 255, 0.55);
+  animation: orb-fall 1.15s cubic-bezier(0.28, 0.6, 0.35, 1) forwards;
+  will-change: transform, opacity;
+}
+@keyframes orb-fall {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+}
+
+/* ============ 滚动条 ============ */
+
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(130, 140, 122, 0.35); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(130, 140, 122, 0.55); }
+
+/* ============ 动效尊重系统偏好 ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora .blob { animation: none; }
+  .btn-iri { animation: none; }
+  .reveal { transition: opacity 0.4s ease; transform: none; filter: none; }
+}
+
+/* ============ 响应式 ============ */
+
+@media (max-width: 760px) {
+  .page { padding: 104px 18px 150px; }
+  .glass { backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); }
+}

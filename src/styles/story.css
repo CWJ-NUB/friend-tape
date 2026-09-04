@@ -1,0 +1,151 @@
+/* ============ 时间线页(双主角名片 + 中轴故事) ============ */
+
+.profiles {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 72px;
+}
+
+.profile-card {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 22px 24px;
+}
+
+.profile-avatar {
+  width: 84px;
+  height: 84px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 18px rgba(92, 104, 86, 0.16);
+}
+
+.profile-info b {
+  display: block;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+
+.profile-info .role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.profile-info p {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.8;
+}
+
+.profiles-x {
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+/* --- 中轴时间线 --- */
+
+.timeline {
+  position: relative;
+  padding: 12px 0 30px;
+}
+
+.timeline-axis {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2.5px;
+  transform: translateX(-50%);
+  border-radius: 99px;
+  background: var(--iri);
+  opacity: 0.45;
+}
+
+.tl-event {
+  position: relative;
+  width: 50%;
+  padding: 0 40px 52px 0;
+}
+.tl-event.right {
+  margin-left: 50%;
+  padding: 0 0 52px 40px;
+}
+
+.tl-dot {
+  position: absolute;
+  top: 10px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3.5px rgba(111, 130, 96, 0.65), 0 0 16px rgba(111, 130, 96, 0.4);
+  z-index: 2;
+}
+.tl-event.right .tl-dot { right: auto; left: -8px; }
+
+.tl-frame {
+  padding: 24px 26px;
+}
+
+.tl-date {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.tl-title {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.tl-content {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 2;
+  white-space: pre-wrap;
+}
+
+.tl-photo {
+  margin-top: 16px;
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 26px rgba(92, 104, 86, 0.16);
+  transition: transform 0.4s cubic-bezier(0.22, 0.8, 0.25, 1), box-shadow 0.4s ease;
+}
+.tl-photo:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: 0 18px 40px rgba(92, 104, 86, 0.22);
+}
+
+@media (max-width: 780px) {
+  .profiles { grid-template-columns: 1fr; }
+  .profiles-x { text-align: center; }
+  .timeline-axis { left: 8px; }
+  .tl-event, .tl-event.right {
+    width: 100%;
+    margin: 0;
+    padding: 0 0 46px 32px;
+  }
+  .tl-dot, .tl-event.right .tl-dot { left: 1px; right: auto; }
+  .profile-card { flex-direction: row; }
+}

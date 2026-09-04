@@ -1,0 +1,61 @@
+/* ============ 液态转场(切换板块) ============ */
+
+.projector-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  background: rgba(238, 241, 247, 0.72);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  animation: projector-cycle 0.72s ease both;
+  pointer-events: all;
+}
+
+@keyframes projector-cycle {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.projector-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 液态旋转环:极光描边,旋转流动 */
+.projector-orb {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #7d8f6e;
+  border-right-color: #a8b394;
+  animation: orb-spin 0.8s linear infinite;
+  filter: drop-shadow(0 4px 12px rgba(111, 130, 96, 0.35));
+}
+@keyframes orb-spin { to { transform: rotate(360deg); } }
+
+.projector-reel {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5em;
+  color: var(--ink-3);
+}
+
+.projector-msg {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  animation: blink-dot 0.4s steps(2) infinite;
+}
+
+@keyframes blink-dot { 50% { opacity: 0.25; } }

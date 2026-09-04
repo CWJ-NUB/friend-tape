@@ -1,0 +1,197 @@
+/* ============ 导航:桌面悬浮胶囊 / 移动端底部 Dock ============ */
+
+/* --- 桌面:顶部居中悬浮胶囊 --- */
+.nav-pill {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  max-width: calc(100vw - 32px);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+  padding: 4px 10px 4px 6px;
+  margin-right: 6px;
+}
+
+.nav-brand-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--iri);
+  box-shadow: 0 4px 12px rgba(111, 130, 96, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  display: grid;
+  place-items: center;
+}
+.nav-brand-dot::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+}
+
+.nav-brand b {
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+}
+.nav-brand span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-3);
+  display: block;
+  margin-top: 1px;
+}
+
+.nav-pill .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-pill .nav-links a {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+.nav-pill .nav-links a:hover { color: var(--ink); background: rgba(255, 255, 255, 0.55); }
+.nav-pill .nav-links a.active {
+  color: #fff;
+  background: var(--iri);
+  box-shadow: 0 4px 14px rgba(111, 130, 96, 0.35);
+  font-weight: 600;
+}
+
+/* --- 移动端:顶部品牌小胶囊 --- */
+.nav-chip {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  padding: 7px 14px 7px 8px;
+  border-radius: 999px;
+}
+
+/* --- 移动端:底部 Dock --- */
+.nav-dock {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 1001;
+  border-radius: 26px;
+  padding: 8px;
+  max-width: calc(100vw - 24px);
+}
+
+.nav-dock-inner {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-dock a,
+.nav-dock button {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 10px 13px;
+  border-radius: 18px;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.nav-dock a.active {
+  color: #fff;
+  background: var(--iri);
+  box-shadow: 0 4px 14px rgba(111, 130, 96, 0.35);
+  font-weight: 600;
+}
+
+/* --- 移动端:更多面板(底部玻璃抽屉) --- */
+.nav-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(239, 241, 236, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sheet-in 0.3s ease both;
+}
+@keyframes sheet-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.nav-sheet-panel {
+  width: min(480px, calc(100vw - 24px));
+  margin-bottom: calc(88px + env(safe-area-inset-bottom));
+  padding: 14px;
+  border-radius: 28px;
+  animation: sheet-up 0.35s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+}
+@keyframes sheet-up {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.nav-sheet-panel .sheet-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--ink-3);
+  text-align: center;
+  padding: 8px 0 12px;
+}
+
+.nav-sheet-panel a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 500;
+  padding: 15px 18px;
+  border-radius: 18px;
+  transition: background 0.2s;
+}
+.nav-sheet-panel a:hover { background: rgba(255, 255, 255, 0.6); }
+.nav-sheet-panel a .mono { font-size: 10px; color: var(--ink-3); }
+
+/* --- 响应式切换 --- */
+@media (max-width: 900px) {
+  .nav-pill { display: none; }
+  .nav-chip { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); }
+  .nav-dock { display: block; }
+  .nav-chip .nav-brand-dot { width: 26px; height: 26px; border-radius: 9px; }
+  .nav-chip b { font-size: 13px; letter-spacing: 0.2em; }
+  .nav-chip .nav-brand span { display: none; }
+}

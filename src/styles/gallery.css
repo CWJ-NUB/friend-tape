@@ -1,0 +1,76 @@
+/* ============ 相册(玻璃相框瀑布流) ============ */
+
+.gallery-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 34px;
+}
+
+.gfilter {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--glass-weak);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--glass-shadow);
+}
+.gfilter:hover { color: var(--ink); transform: translateY(-1px); }
+.gfilter.active {
+  color: #fff;
+  background: var(--iri);
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(111, 130, 96, 0.35);
+}
+
+.gallery-grid {
+  column-count: 3;
+  column-gap: 22px;
+}
+
+.gallery-item {
+  break-inside: avoid;
+  margin-bottom: 22px;
+  padding: 12px 12px 14px;
+  transition: transform 0.4s cubic-bezier(0.22, 0.8, 0.25, 1), box-shadow 0.4s ease;
+}
+.gallery-item:hover {
+  transform: translateY(-5px) rotate(0deg) scale(1.015);
+  box-shadow: 0 22px 48px rgba(92, 104, 86, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.gallery-item img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+.gallery-item figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 11px;
+  padding: 0 3px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.gallery-item .gtag {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  border: 1px solid rgba(111, 130, 96, 0.35);
+  border-radius: 99px;
+  padding: 2px 9px;
+}
+
+@media (max-width: 900px) { .gallery-grid { column-count: 2; } }
+@media (max-width: 560px) { .gallery-grid { column-count: 1; } }

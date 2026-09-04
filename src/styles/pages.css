@@ -1,0 +1,122 @@
+/* ============ 那些话(玻璃便签) ============ */
+
+.quotes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 760px;
+}
+
+.quote-item {
+  position: relative;
+  padding: 24px 28px 20px;
+  font-size: 17px;
+  line-height: 2;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.35s ease;
+}
+.quote-item:hover { transform: rotate(0deg) translateY(-2px); }
+.quote-item:nth-child(odd) { --tilt: -0.6deg; align-self: flex-start; }
+.quote-item:nth-child(even) { --tilt: 0.5deg; align-self: flex-end; }
+
+.quote-item .q-text { color: var(--ink); letter-spacing: 0.02em; }
+.quote-item .q-text::before { content: "「 "; color: var(--accent); }
+.quote-item .q-text::after { content: " 」"; color: var(--accent); }
+
+.quote-meta {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--ink-3);
+}
+.quote-meta span:first-child { color: var(--ink-2); }
+
+/* ============ 未来之约(玻璃清单) ============ */
+
+.wishes-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ink-3);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wishes-note::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(130, 140, 122, 0.3), transparent);
+}
+
+.wish-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.wish-item:hover { transform: translateX(4px); }
+
+.wish-check {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(130, 140, 122, 0.55);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+.wish-item.done .wish-check {
+  background: var(--iri);
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(111, 130, 96, 0.4);
+}
+
+.wish-text {
+  font-size: 16px;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  flex: 1;
+}
+
+.wish-item.done .wish-text {
+  text-decoration: line-through;
+  text-decoration-color: rgba(130, 140, 122, 0.6);
+  color: var(--ink-3);
+}
+
+.wish-stamp {
+  position: absolute;
+  right: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  border: 1.5px solid rgba(111, 130, 96, 0.55);
+  border-radius: 8px;
+  padding: 4px 12px;
+  transform: rotate(-8deg);
+  opacity: 0.9;
+  background: rgba(111, 130, 96, 0.08);
+}
+
+@media (max-width: 640px) {
+  .quote-item { padding: 20px 20px 16px; }
+  .wish-stamp { position: static; transform: none; margin-right: 4px; }
+}

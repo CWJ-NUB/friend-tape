@@ -1,0 +1,266 @@
+/* ============ 信件墙(双向信 + 玻璃信封拆信动画) ============ */
+
+.lw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 22px;
+}
+
+/* --- 信封卡片 --- */
+
+.lcard {
+  padding: 26px 26px 22px;
+  cursor: pointer;
+}
+
+.lcard-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.lcard-seal {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--iri);
+  box-shadow: 0 6px 16px rgba(111, 130, 96, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-serif);
+}
+
+.lcard-route {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  line-height: 1.8;
+}
+.lcard-route b { color: var(--ink-2); font-weight: 600; }
+
+.lcard-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+}
+
+.lcard-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.lcard-hint {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lcard-hint::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(130, 140, 122, 0.3), transparent);
+}
+
+/* --- 拆信弹层 --- */
+
+.lmodal {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(239, 241, 236, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: lmodal-in 0.35s ease both;
+}
+@keyframes lmodal-in { from { opacity: 0; } to { opacity: 1; } }
+
+.lmodal-stage {
+  position: relative;
+  width: min(660px, 94vw);
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 玻璃信封(动画自动播放) */
+.envm {
+  position: absolute;
+  width: min(380px, 80vw);
+  aspect-ratio: 42 / 30;
+  perspective: 1100px;
+  animation: envm-out 0.5s 1.05s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
+}
+@keyframes envm-out { to { opacity: 0; transform: scale(0.9) translateY(14px); } }
+
+.envm-body {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.45));
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 18px 50px rgba(92, 104, 86, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.envm-mini {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 10%;
+  height: 80%;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 20px rgba(92, 104, 86, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.3em;
+  color: var(--ink-3);
+  animation: envm-rise 0.65s 0.72s cubic-bezier(0.22, 0.8, 0.25, 1) forwards;
+}
+@keyframes envm-rise { to { transform: translateY(-30%); } }
+
+.envm-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 18px 18px 0 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+  z-index: 5;
+  animation: envm-flap 0.75s 0.35s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+@keyframes envm-flap { to { transform: rotateX(178deg); z-index: 1; } }
+
+.envm-seal {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--iri);
+  box-shadow: 0 8px 20px rgba(111, 130, 96, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--font-serif);
+  z-index: 6;
+  animation: envm-seal 0.5s 0.4s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
+}
+@keyframes envm-seal { to { opacity: 0; transform: translate(-50%, -50%) scale(1.7); } }
+
+/* 信纸(拆开后浮现的玻璃信卡) */
+.lsheet {
+  position: relative;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: clamp(28px, 5vw, 52px);
+  background: var(--glass-strong);
+  opacity: 0;
+  transform: translateY(36px) scale(0.96);
+  transition: all 0.65s cubic-bezier(0.22, 0.8, 0.25, 1);
+  pointer-events: none;
+}
+.lsheet.on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.lsheet .ls-route {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+}
+
+.lsheet h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(22px, 4vw, 28px);
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+
+.lsheet .ls-body {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 2.35;
+  white-space: pre-wrap;
+  color: var(--ink);
+}
+
+.lsheet .ls-sign {
+  text-align: right;
+  margin-top: 28px;
+  font-family: var(--font-serif);
+  font-size: 17px;
+}
+.lsheet .ls-sign small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.25em;
+  margin-top: 6px;
+}
+
+.lsheet .ls-close {
+  margin-top: 26px;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  padding: 11px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.lsheet .ls-close:hover { color: var(--ink); background: rgba(255, 255, 255, 0.8); }
+
+.lw-empty {
+  padding: 50px 24px;
+  text-align: center;
+  color: var(--ink-2);
+  line-height: 2;
+}
+
+@media (max-width: 640px) {
+  .lw-grid { grid-template-columns: 1fr; }
+  .lmodal { padding: 12px; align-items: flex-start; padding-top: 8vh; }
+  .lsheet { max-height: 74vh; }
+}

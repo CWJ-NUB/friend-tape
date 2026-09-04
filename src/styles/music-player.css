@@ -1,0 +1,107 @@
+/* ============ 音乐胶囊 · 液态玻璃 ============ */
+
+.tape {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 900;
+  width: 196px;
+  padding: 12px 14px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.tape:hover { transform: translateY(-3px); }
+
+.tape-label {
+  margin-bottom: 8px;
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tape-label b {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  margin-bottom: 3px;
+  color: var(--ink);
+}
+
+.tape-window {
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: relative;
+  box-shadow: inset 0 1px 4px rgba(92, 104, 86, 0.1);
+}
+
+.tape-reel {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(111, 130, 96, 0.7);
+  position: relative;
+}
+.tape-reel::before, .tape-reel::after {
+  content: "";
+  position: absolute;
+  background: rgba(111, 130, 96, 0.7);
+  border-radius: 2px;
+}
+.tape-reel::before { width: 12px; height: 2px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.tape-reel::after { width: 2px; height: 12px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+.tape.playing .tape-reel { animation: reel-spin 1.6s linear infinite; }
+
+@keyframes reel-spin { to { transform: rotate(360deg); } }
+
+.tape-tape-line {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: 50%;
+  height: 1.5px;
+  background: linear-gradient(to right, rgba(111, 130, 96, 0.15), rgba(111, 130, 96, 0.45), rgba(111, 130, 96, 0.15));
+}
+
+.tape-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.tape-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  padding: 4px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tape-btn:hover { background: rgba(255, 255, 255, 0.85); }
+
+.tape-hint {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--ink-3);
+  letter-spacing: 0.2em;
+}
+
+@media (max-width: 640px) {
+  .tape { width: 156px; right: 12px; bottom: 86px; }
+  .tape-window { height: 36px; }
+  .tape-hint { display: none; }
+}
