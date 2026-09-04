@@ -18,6 +18,8 @@
   margin-bottom: 26px;
   animation: liquid-in 0.9s 0.1s both;
 }
+/* 编辑模式下带日期选择器,放宽字距防挤爆 */
+body.editing .home-tag { letter-spacing: 0.15em; }
 
 .home-title {
   font-size: clamp(52px, 11vw, 108px);

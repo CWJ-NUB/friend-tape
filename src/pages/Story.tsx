@@ -92,7 +92,12 @@ export default function Story() {
                 <p className="tl-content">
                   <ETextarea value={ev.content} onChange={(v) => patchEvent(ev.id, { content: v })} placeholder="那天发生了什么…" />
                 </p>
-                <EImage src={ev.photo} alt={ev.title} onChange={(url) => patchEvent(ev.id, { photo: url })} />
+                <EImage
+                  imgClassName="tl-photo"
+                  src={ev.photo}
+                  alt={ev.title}
+                  onChange={(url) => patchEvent(ev.id, { photo: url })}
+                />
                 <EDel onClick={() => delEvent(ev.id)} title="删除这个时刻" />
               </div>
             </Reveal>

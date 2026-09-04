@@ -50,6 +50,12 @@ html, body { height: 100%; }
   border-radius: 4px;
 }
 
+/* 图片永远不超出容器(上传的原图再大也被约束在卡片内) */
+img { max-width: 100%; }
+
+/* 移动端禁止横向滚动:iOS Safari 需设在 html 上才可靠 */
+html { overflow-x: hidden; }
+
 body {
   background: var(--bg);
   color: var(--ink);

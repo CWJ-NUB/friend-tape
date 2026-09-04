@@ -23,8 +23,15 @@
   padding: 2px 8px;
   width: 100%;
   max-width: 100%;
-  min-width: 80px;
+  min-width: min(80px, 100%);
 }
+
+/* 编辑模式下,flex 子项允许收缩,防止输入框/图片把卡片撑出横向滚动 */
+body.editing :where(
+  .wish-text, .q-text, .profile-info,
+  .tl-title, .tl-content, .lcard-route,
+  .lcard-title, .quote-meta span
+) { min-width: 0; }
 .etextarea {
   min-height: 88px;
   line-height: 1.85;
@@ -33,8 +40,14 @@
 }
 .edate { width: auto; }
 
-/* 图片:编辑模式外裹一层,加更换按钮 */
-.eimg-block { position: relative; display: inline-block; max-width: 100%; }
+/* 图片:编辑模式外裹一层,加更换按钮
+   注意必须是 block(宽度=父容器),否则图片会按原始尺寸撑破布局 */
+.eimg-block {
+  position: relative;
+  display: block;
+  max-width: 100%;
+}
+.eimg-block img { max-width: 100%; }
 .eimg-btn {
   position: absolute;
   right: 8px;
