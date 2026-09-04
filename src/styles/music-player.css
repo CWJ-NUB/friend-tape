@@ -63,6 +63,43 @@
   text-align: center;
   padding: 16px 0;
 }
+.mp-loading { animation: mp-pulse 1.2s ease-in-out infinite; }
+@keyframes mp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* 短链接识别失败提示 */
+.mp-fail p {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.9;
+}
+.mp-fail p + p { margin-top: 6px; }
+.mp-fail b { color: var(--accent); }
+.mp-fail-ops {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.mp-retry {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+}
+.mp-retry:hover { background: #fff; }
+.mp-openlink {
+  font-size: 12px;
+  color: var(--ink-2);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--ink-3);
+}
+.mp-openlink:hover { color: var(--accent); }
 
 /* 网易云/QQ音乐 官方外链播放器 */
 .mp-embed {
