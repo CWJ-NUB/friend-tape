@@ -6,7 +6,8 @@ import type { SiteConfig } from "../content/types";
 type Parsed =
   | { kind: "audio"; url: string }
   | { kind: "netease"; id: string; src: string } // 网易云歌曲页 → 官方外链播放器
-  | { kind: "qq-short"; tag: string; src: string } // QQ App 分享短链 → 官方播放器 shorttag 直解
+  | { kind: "qq-short"; tag: string; src: string } // QQ 老式纯短链 → 官方播放器 shorttag 直解
+  | { kind: "qq-id"; id: string; src: string } // QQ 链接自带数字 songid → 官方播放器直出
   | { kind: "qq"; mid: string } // QQ 歌曲页 songmid → 需转数字 songid
   | { kind: "ne-short"; url: string } // 网易云短链(163cn.tv 等) → 需代理解析
   | { kind: "unknown" }; // 认不出的链接类型
@@ -59,19 +60,23 @@ export function parseMusicUrl(raw: string): Parsed | null {
       src: `https://music.163.com/outchain/player?type=2&id=${nep[1]}&auto=0&height=66`,
     };
 
-  // QQ音乐: App 分享短链(?__=xxx),官方播放器原生支持 shorttag 直解
+  // QQ音乐: 链接里直接带 songmid=(新版 App 分享链接,如 c6.y.qq.com/…?__=xx&songmid=xx)
+  // 这类链接的 __= 不是可解析短码,但 songmid 就在参数里,直接用最稳
+  const qm = u.match(/[?&]songmid=([A-Za-z0-9]+)/);
+  if (qm && isQqOrNeteaseHost(u)) return { kind: "qq", mid: qm[1] };
+  // QQ音乐: 链接里直接带 songid=(数字,官方播放器直接认)
+  const qi = u.match(/[?&]songid=(\d+)/);
+  if (qi && isQqOrNeteaseHost(u))
+    return { kind: "qq-id", id: qi[1], src: `${QQ_OUTCHAIN}?songid=${qi[1]}` };
+  // QQ音乐: 歌曲页路径 songDetail/xxx
+  const qd = u.match(/y\.qq\.com\/[^\s]*?\/(?:songDetail|song)\/([A-Za-z0-9]+)/);
+  if (qd) return { kind: "qq", mid: qd[1] };
+  // QQ音乐: 老式纯短链(只有 __=,靠 302 跳转) → 官方播放器 shorttag 直解
   const qs = u.match(/[?&]__=([A-Za-z0-9_-]+)/);
   if (qs && isQqOrNeteaseHost(u)) {
     const tag = qs[1];
-    // QQ 官方 outchain 播放器:传 shorttag 它自己调接口解析短链
     return { kind: "qq-short", tag, src: `${QQ_OUTCHAIN}?shorttag=${tag}` };
   }
-
-  // QQ音乐: 分享链接带 songmid=xxx / 歌曲页 songDetail/xxx
-  const qm = u.match(/songmid=([A-Za-z0-9]+)/);
-  if (qm) return { kind: "qq", mid: qm[1] };
-  const qd = u.match(/y\.qq\.com\/[^\s]*?\/(?:songDetail|song)\/([A-Za-z0-9]+)/);
-  if (qd) return { kind: "qq", mid: qd[1] };
 
   if (AUDIO_EXT_RE.test(u)) return { kind: "audio", url: u };
 
@@ -254,7 +259,9 @@ export default function MusicPlayer() {
   // 是否需要异步解析(qq mid 转数字 id / 网易云短链跳转)
   const needsResolve = direct?.kind === "qq" || direct?.kind === "ne-short";
   const embedSrc =
-    direct?.kind === "netease" || direct?.kind === "qq-short" ? direct.src : resolvedSrc || null;
+    direct?.kind === "netease" || direct?.kind === "qq-short" || direct?.kind === "qq-id"
+      ? direct.src
+      : resolvedSrc || null;
   const isEmbed = !!embedSrc;
   const showFab = !!direct || editing;
 
