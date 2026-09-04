@@ -5,14 +5,17 @@ import type { SiteConfig } from "../content/types";
 
 type Parsed =
   | { kind: "audio"; url: string }
-  | { kind: "netease"; id: string; src: string }
-  | { kind: "qq"; mid: string; src: string }
-  | { kind: "short"; url: string };
+  | { kind: "netease"; id: string; src: string } // 网易云歌曲页 → 官方外链播放器
+  | { kind: "qq-short"; tag: string; src: string } // QQ App 分享短链 → 官方播放器 shorttag 直解
+  | { kind: "qq"; mid: string } // QQ 歌曲页 songmid → 需转数字 songid
+  | { kind: "ne-short"; url: string } // 网易云短链(163cn.tv 等) → 需代理解析
+  | { kind: "unknown" }; // 认不出的链接类型
 
 const AUDIO_EXT_RE = /\.(mp3|m4a|aac|ogg|wav|flac)([?#]|$)/i;
+const QQ_OUTCHAIN = "https://i.y.qq.com/n2/m/outchain/player/index.html";
 
-/** 是否 QQ/网易云 域名下的链接(App 分享短链接都长在这些域名下) */
-function isQqOrNeteaseLink(u: string): boolean {
+/** 是否 QQ/网易云 域名 */
+function isQqOrNeteaseHost(u: string): boolean {
   try {
     const h = new URL(u).hostname;
     return /(^|\.)qq\.com$/.test(h) || /(^|\.)163\.com$/.test(h) || /(^|\.)163cn\.tv$/.test(h);
@@ -23,9 +26,10 @@ function isQqOrNeteaseLink(u: string): boolean {
 
 /**
  * 解析音乐配置:
+ * - QQ音乐 App 分享短链(c6.y.qq.com/…?__=xxx) → 官方外链播放器 shorttag 直解(零代理)
+ * - QQ音乐歌曲页链接(songmid / songDetail/xxx) → 需把 mid 转成数字 songid
  * - 网易云歌曲页链接 → 官方外链播放器
- * - QQ音乐歌曲页/带 songmid 的分享链接 → 官方外链播放器
- * - QQ音乐/网易云 App 分享的短链接(c6.y.qq.com/…、163cn.tv/…) → 需异步解析
+ * - 网易云短链(163cn.tv) → 需代理解析
  * - 其他音频直链(.mp3 等) → 内置磁带机播放
  * 输入可以是整段分享文案,会自动抠出里面的第一条链接。
  */
@@ -33,7 +37,7 @@ export function parseMusicUrl(raw: string): Parsed | null {
   let u = (raw || "").trim();
   if (!u) return null;
 
-  // QQ/网易云 App 分享常带一堆文字,先抠出链接本体
+  // App 分享常带一堆文字,先抠出链接本体
   const m = u.match(/https?:\/\/[^\s"'<>「」『』（）【】，。、；]*/);
   if (m) u = m[0];
 
@@ -55,32 +59,35 @@ export function parseMusicUrl(raw: string): Parsed | null {
       src: `https://music.163.com/outchain/player?type=2&id=${nep[1]}&auto=0&height=66`,
     };
 
-  // QQ音乐: 分享链接带 songmid=xxx
+  // QQ音乐: App 分享短链(?__=xxx),官方播放器原生支持 shorttag 直解
+  const qs = u.match(/[?&]__=([A-Za-z0-9_-]+)/);
+  if (qs && isQqOrNeteaseHost(u)) {
+    const tag = qs[1];
+    // QQ 官方 outchain 播放器:传 shorttag 它自己调接口解析短链
+    return { kind: "qq-short", tag, src: `${QQ_OUTCHAIN}?shorttag=${tag}` };
+  }
+
+  // QQ音乐: 分享链接带 songmid=xxx / 歌曲页 songDetail/xxx
   const qm = u.match(/songmid=([A-Za-z0-9]+)/);
-  if (qm)
-    return {
-      kind: "qq",
-      mid: qm[1],
-      src: `https://i.y.qq.com/n2/m/outchain/player/index.html?songmid=${qm[1]}&songtype=0`,
-    };
-  // QQ音乐: 歌曲页 /n/ryqq/songDetail/xxx(含 ryqq_v2)
+  if (qm) return { kind: "qq", mid: qm[1] };
   const qd = u.match(/y\.qq\.com\/[^\s]*?\/(?:songDetail|song)\/([A-Za-z0-9]+)/);
-  if (qd)
-    return {
-      kind: "qq",
-      mid: qd[1],
-      src: `https://i.y.qq.com/n2/m/outchain/player/index.html?songmid=${qd[1]}&songtype=0`,
-    };
+  if (qd) return { kind: "qq", mid: qd[1] };
 
   if (AUDIO_EXT_RE.test(u)) return { kind: "audio", url: u };
-  if (/^https?:\/\//.test(u) && isQqOrNeteaseLink(u)) return { kind: "short", url: u };
-  if (/^https?:\/\//.test(u)) return { kind: "audio", url: u };
+
+  if (/^https?:\/\//.test(u)) {
+    // 网易云短链(163cn.tv)或 163 域下其他分享链接 → 交给代理解析
+    if (isQqOrNeteaseHost(u) && /163cn\.tv|music\.163\.com/.test(u)) return { kind: "ne-short", url: u };
+    // QQ/163 域名但认不出格式(如歌单页) → 给明确提示,别当直链播
+    if (isQqOrNeteaseHost(u)) return { kind: "unknown" };
+    return { kind: "audio", url: u };
+  }
   return null;
 }
 
-/* ================= 短链接解析 ================= */
+/* ================= 短链/歌曲标识解析 ================= */
 
-/** 从文本(代理返回的最终地址或页面内容)里提取歌曲标识 */
+/** 从文本(代理返回的最终地址或页面内容)里提取歌曲链接 */
 function extractSongLink(text: string): string | null {
   if (!text) return null;
   const q1 = text.match(/songmid=([A-Za-z0-9]+)/);
@@ -101,14 +108,63 @@ function timeoutSignal(ms: number): AbortSignal | undefined {
   }
 }
 
+/** JSONP 调用(script 标签天然跨域,零代理依赖) */
+function jsonp(url: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const cb = `__ftmusic${Date.now()}${Math.floor(Math.random() * 1e4)}`;
+    const s = document.createElement("script");
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("timeout"));
+    }, 8000);
+    const cleanup = () => {
+      clearTimeout(timer);
+      delete (window as any)[cb];
+      s.remove();
+    };
+    (window as any)[cb] = (data: any) => {
+      cleanup();
+      resolve(data);
+    };
+    s.onerror = () => {
+      cleanup();
+      reject(new Error("script error"));
+    };
+    s.src = `${url}&callback=${cb}`;
+    document.head.appendChild(s);
+  });
+}
+
 /**
- * 解析分享短链接:短链接会 302 到带 songmid 的完整歌曲页,
- * 但浏览器跨域读不到跳转地址,只能借公共代理通道跟随跳转。
- * 三条通道并行,谁先拿到有效结果用谁。
+ * QQ音乐 songmid → 数字 songid。
+ * 官方外链播放器只认 songid(数字)/shorttag,不认 songmid,
+ * 通过 QQ 官方 musicu.fcg 的 JSONP 接口把 mid 换成 id,浏览器直调无需代理。
  */
-async function resolveShortLink(shortUrl: string): Promise<string | null> {
+async function qqMidToSongid(mid: string): Promise<string | null> {
+  const data = encodeURIComponent(
+    JSON.stringify({
+      req_0: {
+        module: "track_info.UniformRuleCtrlServer",
+        method: "GetTrackInfo",
+        param: { mids: [mid], types: [0], singer_pmid: 1 },
+      },
+    })
+  );
+  try {
+    const res = await jsonp(`https://u.y.qq.com/cgi-bin/musicu.fcg?format=jsonp&data=${data}`);
+    const t = res?.req_0?.data?.tracks?.[0];
+    return t?.id ? String(t.id) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 解析网易云分享短链:短链会 302 到完整歌曲页,
+ * 浏览器跨域读不到跳转地址,只能借公共代理通道跟随跳转。
+ */
+async function resolveNeteaseShort(shortUrl: string): Promise<string | null> {
   const tasks: Array<Promise<string | null>> = [
-    // allorigins:返回 JSON,status.url 是最终跳转地址
     (async () => {
       try {
         const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(shortUrl)}`, {
@@ -123,7 +179,6 @@ async function resolveShortLink(shortUrl: string): Promise<string | null> {
         return null;
       }
     })(),
-    // codetabs:返回最终页面 HTML,从内容里抓 songmid/歌曲 id
     (async () => {
       try {
         const r = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(shortUrl)}`, {
@@ -135,7 +190,6 @@ async function resolveShortLink(shortUrl: string): Promise<string | null> {
         return null;
       }
     })(),
-    // r.jina.ai:返回的文本头部带 "URL Source: 最终地址"
     (async () => {
       try {
         const r = await fetch(`https://r.jina.ai/${shortUrl}`, { signal: timeoutSignal(8000) });
@@ -156,7 +210,7 @@ async function resolveShortLink(shortUrl: string): Promise<string | null> {
   return null;
 }
 
-/* ---------- 解析结果缓存:同一短链接不用反复走代理 ---------- */
+/* ---------- 解析结果缓存:同一链接不用反复解析 ---------- */
 
 const RESOLVE_CACHE_KEY = "ft-music-resolve";
 
@@ -168,10 +222,10 @@ function readResolveCache(): Record<string, string> {
   }
 }
 
-function writeResolveCache(shortUrl: string, finalUrl: string) {
+function writeResolveCache(key: string, embedSrc: string) {
   try {
     const map = readResolveCache();
-    map[shortUrl] = finalUrl;
+    map[key] = embedSrc;
     localStorage.setItem(RESOLVE_CACHE_KEY, JSON.stringify(map));
   } catch {
     /* 隐私模式写不进就算了 */
@@ -190,16 +244,18 @@ export default function MusicPlayer() {
   });
   const [err, setErr] = useState("");
 
-  // 短链接解析
-  const [resolvedUrl, setResolvedUrl] = useState("");
+  // 需异步解析的链接(qq mid / 网易云短链)的解析结果:最终 iframe src
+  const [resolvedSrc, setResolvedSrc] = useState("");
   const [resolveFailed, setResolveFailed] = useState(false);
   const [retryTick, setRetryTick] = useState(0);
 
   const url = content?.site.musicUrl ?? "";
   const direct = parseMusicUrl(url);
-  const isShort = direct?.kind === "short";
-  const parsed = isShort ? (resolvedUrl ? parseMusicUrl(resolvedUrl) : null) : direct;
-  const isEmbed = parsed?.kind === "netease" || parsed?.kind === "qq";
+  // 是否需要异步解析(qq mid 转数字 id / 网易云短链跳转)
+  const needsResolve = direct?.kind === "qq" || direct?.kind === "ne-short";
+  const embedSrc =
+    direct?.kind === "netease" || direct?.kind === "qq-short" ? direct.src : resolvedSrc || null;
+  const isEmbed = !!embedSrc;
   const showFab = !!direct || editing;
 
   const setSite = (p: Partial<SiteConfig>) =>
@@ -216,28 +272,39 @@ export default function MusicPlayer() {
     setErr("");
   }, [url]);
 
-  // 短链接 → 异步解析成完整歌曲链接(带缓存)。
-  // 用 useLayoutEffect:缓存命中时在首帧 painted 前就写入结果,不闪「识别中」
+  // 链接解析:QQ songmid → JSONP 换数字 id;网易云短链 → 代理跟随跳转。
+  // useLayoutEffect:缓存命中时不闪「识别中」
   useLayoutEffect(() => {
-    if (parseMusicUrl(url)?.kind !== "short") {
+    if (!needsResolve) {
       setResolveFailed(false);
-      setResolvedUrl("");
+      setResolvedSrc("");
       return;
     }
-    const cached = readResolveCache()[url];
+    const key = direct!.kind === "qq" ? `mid:${direct!.mid}` : direct!.url;
+    const cached = readResolveCache()[key];
     if (cached) {
-      setResolvedUrl(cached);
+      setResolvedSrc(cached);
       setResolveFailed(false);
       return;
     }
     let alive = true;
     setResolveFailed(false);
-    setResolvedUrl("");
-    resolveShortLink(url).then((final) => {
+    setResolvedSrc("");
+    const job: Promise<string | null> =
+      direct!.kind === "qq"
+        ? qqMidToSongid(direct!.mid).then((id) =>
+            id ? `${QQ_OUTCHAIN}?songid=${id}` : null
+          )
+        : resolveNeteaseShort(direct!.url).then((link) => {
+            if (!link) return null;
+            const p = parseMusicUrl(link);
+            return p?.kind === "netease" ? p.src : null;
+          });
+    job.then((src) => {
       if (!alive) return;
-      if (final) {
-        writeResolveCache(url, final);
-        setResolvedUrl(final);
+      if (src) {
+        writeResolveCache(key, src);
+        setResolvedSrc(src);
       } else {
         setResolveFailed(true);
       }
@@ -268,9 +335,7 @@ export default function MusicPlayer() {
     } else {
       a.play()
         .then(() => setPlaying(true))
-        .catch(() =>
-          setErr("直链播放失败:链接可能无效或禁止跨域。如果这是 QQ音乐/网易云 的分享链接,请粘贴歌曲页的完整链接")
-        );
+        .catch(() => setErr("直链播放失败:链接可能无效或禁止跨域。建议换用 QQ音乐/网易云 的歌曲链接"));
     }
   };
 
@@ -308,7 +373,7 @@ export default function MusicPlayer() {
           {editing && (
             <div className="mp-edit">
               <label className="mp-edit-label">
-                歌曲链接 · 支持 QQ音乐/网易云 的歌曲页或 App 分享链接(短链接自动识别),也支持 mp3 直链
+                歌曲链接 · 支持 QQ音乐/网易云 的歌曲链接或 App 分享链接,也支持 mp3 直链
               </label>
               <input
                 className="input"
@@ -319,15 +384,20 @@ export default function MusicPlayer() {
             </div>
           )}
 
-          {isShort && !parsed ? (
+          {direct?.kind === "unknown" ? (
+            <div className="mp-fail">
+              <p>
+                这是 QQ音乐/网易云 的链接,但<b>不是单曲分享链接</b>(可能是歌单、专辑或电台页)。
+                目前只支持单曲:请在 App 里打开这首歌 → 点「分享」→ 复制链接再粘贴。
+              </p>
+            </div>
+          ) : needsResolve && !embedSrc ? (
             resolveFailed ? (
               <div className="mp-fail">
+                <p>自动识别没有成功(网络通道不稳定),点「重试」再试一次。</p>
                 <p>
-                  这是 QQ音乐/网易云 App 的<b>分享短链接</b>,刚才自动识别没有成功(公共代理通道不稳定)。
-                </p>
-                <p>
-                  可以点「重试」;或者先用浏览器打开这个短链接,等它跳到歌曲页后,把地址栏里的
-                  <b>完整链接</b>复制回来粘贴。
+                  也可以直接用 QQ音乐 App:打开这首歌 → 点「分享」→「复制链接」,把
+                  <b>短链接</b>粘贴过来,官方播放器能直接识别。
                 </p>
                 <div className="mp-fail-ops">
                   <button className="mp-retry no-spark" onClick={() => setRetryTick((t) => t + 1)}>
@@ -341,12 +411,12 @@ export default function MusicPlayer() {
             ) : (
               <div className="mp-empty mp-loading">⟳ 正在识别分享链接里的歌曲…</div>
             )
-          ) : !parsed ? (
+          ) : !direct ? (
             <div className="mp-empty">
               {editing ? "粘贴链接后,这里会出现播放器" : "还没有设置背景音乐"}
             </div>
           ) : isEmbed ? (
-            <iframe className="mp-embed" src={parsed.src} title="音乐" allow="autoplay; encrypted-media" />
+            <iframe className="mp-embed" src={embedSrc!} title="音乐" allow="autoplay; encrypted-media" />
           ) : (
             <>
               <div className="mp-body">
@@ -377,8 +447,8 @@ export default function MusicPlayer() {
       )}
 
       {/* 直链音频:面板收起后继续播放 */}
-      {parsed?.kind === "audio" && (
-        <audio ref={audioRef} src={parsed.url} loop onEnded={() => setPlaying(false)} />
+      {direct?.kind === "audio" && (
+        <audio ref={audioRef} src={direct.url} loop onEnded={() => setPlaying(false)} />
       )}
     </>
   );
