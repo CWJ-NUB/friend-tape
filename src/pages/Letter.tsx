@@ -1,41 +1,64 @@
 import { useEffect, useState } from "react";
 import { useContent } from "../content/ContentContext";
 import Reveal from "../components/Reveal";
+import { EAdd, EDate, EDel, EText, ETextarea, euid } from "../components/Editable";
 import type { LetterContent } from "../content/types";
 
 /**
  * 信件墙:两人各写各的,一人一封。
  * 点击信封卡 → 玻璃信封弹层自动播放拆信动画(封蜡弹开 → 封口翻起 → 信纸升起)
  * → 玻璃信卡浮现正文。
+ * 编辑模式:卡片上的收发件人/标题/日期可直接改,点开信卡可改正文。
  */
 export default function Letter() {
-  const { content } = useContent();
-  const [active, setActive] = useState<LetterContent | null>(null);
+  const { content, update, editing } = useContent();
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [sheetOn, setSheetOn] = useState(false);
 
+  const active = content?.letters.find((l) => l.id === activeId) ?? null;
+
   // 拆开:动画时序与 letter.css 对齐(封蜡 0.4s 弹开 / 封口 0.35s 翻起 /
-  // 信封 1.05s 淡出)→ 1.2s 后信卡浮现
+  // 信封 1.05s 淡出)→ 1.2s 后信卡浮现;编辑模式下跳过动画直接显示
   useEffect(() => {
     if (!active) return;
-    setSheetOn(false);
+    setSheetOn(editing);
     document.body.style.overflow = "hidden";
-    const t = setTimeout(() => setSheetOn(true), 1200);
+    const t = setTimeout(() => setSheetOn(true), editing ? 0 : 1200);
     return () => {
       clearTimeout(t);
       document.body.style.overflow = "";
     };
-  }, [active]);
+  }, [active, editing]);
 
   // ESC 关闭
   useEffect(() => {
     if (!active) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setActive(null);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setActiveId(null);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [active]);
 
   if (!content) return null;
-  const letters = content.letters;
+
+  const setLetters = (ls: LetterContent[]) => update((c) => ({ ...c, letters: ls }));
+  const patchLetter = (id: string, p: Partial<LetterContent>) =>
+    setLetters(content.letters.map((l) => (l.id === id ? { ...l, ...p } : l)));
+  const delLetter = (id: string) => {
+    if (activeId === id) setActiveId(null);
+    setLetters(content.letters.filter((l) => l.id !== id));
+  };
+  const addLetter = () =>
+    setLetters([
+      ...content.letters,
+      {
+        id: euid(),
+        title: "新的一封信",
+        content: "亲爱的…",
+        from: "我",
+        to: "你",
+        date: new Date().toISOString().slice(0, 10),
+      },
+    ]);
 
   return (
     <div className="page">
@@ -45,59 +68,83 @@ export default function Letter() {
         有些话当面说不出口,就写成信。这里一人一封——你写给他,他写给你,谁也不许赖账。
       </p>
 
-      {letters.length === 0 ? (
+      {content.letters.length === 0 ? (
         <div className="lw-empty glass">
-          信墙还空着。打开「编辑中心 → 信件墙」,写下第一封信吧。
+          信墙还空着。点右下角「✎」开启编辑,写下第一封信吧。
         </div>
       ) : (
         <div className="lw-grid">
-          {letters.map((l, i) => (
+          {content.letters.map((l, i) => (
             <Reveal key={l.id} delay={i * 120}>
-              <div className="lcard glass glass-hover no-spark" onClick={() => setActive(l)}>
+              <div
+                className={`lcard glass glass-hover no-spark ${editing ? "edel-host" : ""}`}
+                onClick={() => setActiveId(l.id)}
+              >
                 <div className="lcard-top">
                   <div className="lcard-seal">{(l.from || "信").trim().charAt(0)}</div>
                   <div className="lcard-route">
-                    FROM <b>{l.from || "—"}</b>
+                    FROM <b><EText value={l.from} onChange={(v) => patchLetter(l.id, { from: v })} placeholder="寄件人" /></b>
                     <br />
-                    TO <b>{l.to || "—"}</b>
+                    TO <b><EText value={l.to} onChange={(v) => patchLetter(l.id, { to: v })} placeholder="收件人" /></b>
                   </div>
                 </div>
-                <div className="lcard-title">{l.title}</div>
-                <div className="lcard-date">{l.date || "未注明日期"}</div>
+                <div className="lcard-title">
+                  <EText value={l.title} onChange={(v) => patchLetter(l.id, { title: v })} placeholder="信的标题" />
+                </div>
+                <div className="lcard-date">
+                  <EDate value={l.date} onChange={(v) => patchLetter(l.id, { date: v })} />
+                </div>
                 <div className="lcard-hint">TAP TO UNSEAL · 拆信</div>
+                <EDel onClick={() => delLetter(l.id)} title="删除这封信" />
               </div>
             </Reveal>
           ))}
+          <EAdd label="＋ 写一封新信" onClick={addLetter} />
         </div>
       )}
 
-      {/* 拆信弹层:动画自动播放 */}
+      {/* 拆信弹层:阅读模式自动播放动画,编辑模式直接进信卡 */}
       {active && (
-        <div className="lmodal no-spark" onClick={() => setActive(null)}>
+        <div className="lmodal no-spark" onClick={() => setActiveId(null)}>
           <div className="lmodal-stage" onClick={(e) => e.stopPropagation()}>
-            {/* 玻璃信封(只播一轮) */}
-            <div className="envm" key={active.id}>
-              <div className="envm-body" />
-              <div className="envm-mini">
-                <span>FOR {active.to.toUpperCase()}</span>
-                <span>✉</span>
+            {/* 玻璃信封(只播一轮;编辑模式下跳过) */}
+            {!editing && (
+              <div className="envm" key={active.id}>
+                <div className="envm-body" />
+                <div className="envm-mini">
+                  <span>FOR {(active.to || "YOU").toUpperCase()}</span>
+                  <span>✉</span>
+                </div>
+                <div className="envm-flap" />
+                <div className="envm-seal">{(active.from || "信").trim().charAt(0)}</div>
               </div>
-              <div className="envm-flap" />
-              <div className="envm-seal">{(active.from || "信").trim().charAt(0)}</div>
-            </div>
+            )}
 
             {/* 信卡 */}
             <article className={`lsheet glass ${sheetOn ? "on" : ""}`}>
               <div className="ls-route">
-                FROM {active.from} → TO {active.to} {active.date && `· ${active.date}`}
+                FROM <EText value={active.from} onChange={(v) => patchLetter(active.id, { from: v })} placeholder="寄件人" />
+                {" → "}
+                TO <EText value={active.to} onChange={(v) => patchLetter(active.id, { to: v })} placeholder="收件人" />
+                {" · "}
+                <EDate value={active.date} onChange={(v) => patchLetter(active.id, { date: v })} />
               </div>
-              <h3>{active.title}</h3>
-              <div className="ls-body">{active.content}</div>
+              <h3>
+                <EText value={active.title} onChange={(v) => patchLetter(active.id, { title: v })} placeholder="信的标题" />
+              </h3>
+              <div className="ls-body">
+                <ETextarea
+                  value={active.content}
+                  onChange={(v) => patchLetter(active.id, { content: v })}
+                  placeholder="信的正文…"
+                  minHeight={180}
+                />
+              </div>
               <div className="ls-sign">
-                —— {active.from}
+                —— <EText value={active.from} onChange={(v) => patchLetter(active.id, { from: v })} placeholder="署名" />
                 <small>EVER YOURS, FRAME BY FRAME</small>
               </div>
-              <button className="ls-close" onClick={() => setActive(null)}>
+              <button className="ls-close" onClick={() => setActiveId(null)}>
                 ✕ 收 起 这 封 信
               </button>
             </article>

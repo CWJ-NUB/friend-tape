@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { useContent } from "../content/ContentContext";
 import Reveal from "../components/Reveal";
+import { EAdd, EDel, EText, euid } from "../components/Editable";
+import type { Wish } from "../content/types";
 
-/** 未来之约:勾选状态保存在当前浏览器;要永久保存,请在编辑中心修改 */
+/** 未来之约:勾选状态保存在当前浏览器;要永久保存,请到编辑中心修改 */
 export default function Wishes() {
-  const { content } = useContent();
+  const { content, update, editing } = useContent();
   const [localDone, setLocalDone] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
       setLocalDone(JSON.parse(localStorage.getItem("ft-wishes") || "{}"));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const toggle = (id: string) => {
@@ -22,6 +26,11 @@ export default function Wishes() {
   };
 
   if (!content) return null;
+
+  const setWishes = (ws: Wish[]) => update((c) => ({ ...c, wishes: ws }));
+  const delWish = (id: string) => setWishes(content.wishes.filter((w) => w.id !== id));
+  const addWish = () => setWishes([...content.wishes, { id: euid(), text: "说好要一起做的事…", done: false }]);
+
   const doneCount = content.wishes.filter((w) => w.done || localDone[w.id]).length;
 
   return (
@@ -33,7 +42,7 @@ export default function Wishes() {
       </p>
 
       <div className="wishes-note">
-        PROGRESS {doneCount} / {content.wishes.length} · 勾选保存在当前浏览器,想永久记录请到编辑中心
+        PROGRESS {doneCount} / {content.wishes.length} · 勾选保存在当前浏览器,想永久记录请在编辑模式下勾选
       </div>
 
       <div>
@@ -41,14 +50,21 @@ export default function Wishes() {
           const done = w.done || localDone[w.id];
           return (
             <Reveal key={w.id} delay={i * 100}>
-              <div className={`wish-item glass no-spark ${done ? "done" : ""}`} onClick={() => toggle(w.id)}>
+              <div
+                className={`wish-item glass no-spark ${done ? "done" : ""} ${editing ? "edel-host" : ""}`}
+                onClick={() => toggle(w.id)}
+              >
                 <div className="wish-check">{done ? "✓" : ""}</div>
-                <div className="wish-text">{w.text}</div>
+                <div className="wish-text">
+                  <EText value={w.text} onChange={(v) => setWishes(content.wishes.map((x) => (x.id === w.id ? { ...x, text: v } : x)))} placeholder="约定内容" />
+                </div>
                 {done && <div className="wish-stamp">已 兑 现</div>}
+                <EDel onClick={() => delWish(w.id)} title="删除这个约定" />
               </div>
             </Reveal>
           );
         })}
+        <EAdd label="＋ 许一个新约定" onClick={addWish} />
       </div>
     </div>
   );

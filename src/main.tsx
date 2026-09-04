@@ -10,6 +10,7 @@ import "./styles/letter.css";
 import "./styles/pages.css";
 import "./styles/music-player.css";
 import "./styles/admin.css";
+import "./styles/edit.css";
 import App from "./App";
 
 createRoot(document.getElementById("root")!).render(

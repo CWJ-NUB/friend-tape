@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useContent } from "../content/ContentContext";
+import { EDate, EText } from "../components/Editable";
+import type { Content } from "../content/types";
 
 /** 实时天数:自相识日起,每秒刷新 */
 function useDaysSince(metDate: string) {
@@ -21,18 +23,33 @@ function useDaysSince(metDate: string) {
 }
 
 export default function Home() {
-  const { content } = useContent();
+  const { content, update } = useContent();
   const t = useDaysSince(content?.site.metDate ?? "2025-05-10");
+  if (!content) return null;
+
+  const s = content.site;
+  const setSite = (p: Partial<Content["site"]>) =>
+    update((c) => ({ ...c, site: { ...c.site, ...p } }));
 
   return (
     <div className="home">
-      <div className="home-tag">OUR TAPE · SINCE {content?.site.metDate}</div>
-      <h1 className="home-title iri-text">OUR TAPE</h1>
-      <div className="home-subtitle">{content?.site.subtitle ?? "我们的胶片"}</div>
+      <div className="home-tag">
+        OUR TAPE · SINCE <EDate value={s.metDate} onChange={(v) => setSite({ metDate: v })} />
+      </div>
+      <h1 className="home-title iri-text">
+        <EText value={s.title} onChange={(v) => setSite({ title: v })} placeholder="OUR TAPE" />
+      </h1>
+      <div className="home-subtitle">
+        <EText value={s.subtitle} onChange={(v) => setSite({ subtitle: v })} placeholder="副标题" fallback="我们的胶片" />
+      </div>
 
       <div className="home-quote glass">
-        <div className="q">「 {content?.site.heroQuote} 」</div>
-        <div className="note">{content?.site.heroNote}</div>
+        <div className="q">
+          「 <EText value={s.heroQuote} onChange={(v) => setSite({ heroQuote: v })} placeholder="一句开场的话" /> 」
+        </div>
+        <div className="note">
+          <EText value={s.heroNote} onChange={(v) => setSite({ heroNote: v })} placeholder="开场说明" />
+        </div>
       </div>
 
       <div className="home-counter glass">

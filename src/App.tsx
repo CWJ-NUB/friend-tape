@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import ProjectorTransition from "./components/ProjectorTransition";
 import Sparkle from "./components/Sparkle";
 import MusicPlayer from "./components/MusicPlayer";
+import { EditUI } from "./components/Editable";
 import Home from "./pages/Home";
 import Story from "./pages/Story";
 import Gallery from "./pages/Gallery";
@@ -52,6 +53,7 @@ function Shell() {
       <ProjectorTransition active={transitioning} />
       <MusicPlayer />
       <Sparkle />
+      <EditUI />
     </>
   );
 }

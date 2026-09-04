@@ -19,7 +19,7 @@ const TABS: { id: Tab; label: string }[] = [
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 export default function Admin() {
-  const { reload } = useContent();
+  const { applyContent, refreshAuth } = useContent();
   const [auth, setAuth] = useState<GhAuth | null>(null);
   const [sha, setSha] = useState("");
   const [draft, setDraft] = useState<Content | null>(null);
@@ -89,6 +89,7 @@ export default function Admin() {
           setDraft(r.content);
           setDirty(false);
           saveAuth(next);
+          refreshAuth(); // 让全站的行内编辑开关立即生效
           setStatus({ type: "ok", msg: `已连接 ${next.owner}/${next.repo},内容已载入,可以开始编辑。` });
           return;
         } catch (e) {
@@ -151,6 +152,7 @@ export default function Admin() {
       setSha(r.sha);
       setDraft(r.content);
       setDirty(false);
+      applyContent(r.content);
       setStatus({ type: "ok", msg: "已拉取仓库最新内容。" });
     } catch (e) {
       setStatus({ type: "err", msg: e instanceof Error ? e.message : String(e) });
@@ -169,7 +171,7 @@ export default function Admin() {
       setDraft(next);
       setSha(newSha);
       setDirty(false);
-      await reload();
+      applyContent(next); // 直接替换内存内容,避免读到线上尚未重建的旧版本
       setStatus({ type: "ok", msg: "保存成功!约 1 分钟后 GitHub Pages 会自动更新,刷新网站即可看到。" });
     } catch (e) {
       setStatus({ type: "err", msg: e instanceof Error ? e.message : String(e) });
@@ -180,6 +182,7 @@ export default function Admin() {
 
   function disconnect() {
     saveAuth(null);
+    refreshAuth();
     setAuth(null);
     setDraft(null);
     setDirty(false);

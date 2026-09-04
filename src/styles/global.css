@@ -38,6 +38,18 @@
 html { scroll-behavior: smooth; }
 html, body { height: 100%; }
 
+/* ---- 焦点与触摸:去掉浏览器默认蓝框/触摸高亮 ----
+   鼠标/触摸点击不出现系统蓝框;键盘 Tab 导航保留苔绿柔焦(无障碍) */
+* { -webkit-tap-highlight-color: transparent; }
+:where(button, a, [role="button"], input, textarea, select, [tabindex]):focus {
+  outline: none;
+}
+:where(button, a, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid rgba(111, 130, 96, 0.55);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 body {
   background: var(--bg);
   color: var(--ink);

@@ -1,0 +1,211 @@
+/* ============ 行内编辑模式 ============ */
+
+/* 可点击的待编辑文字 */
+.etag {
+  cursor: text;
+  border-bottom: 1px dashed rgba(111, 130, 96, 0.4);
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.etag:hover { background: rgba(111, 130, 96, 0.12); }
+.eempty { color: var(--ink-3); opacity: 0.75; }
+
+/* 行内输入框 */
+.einput,
+.etextarea,
+.edate {
+  font: inherit;
+  font-size: max(16px, 1em); /* 防止 iOS 聚焦缩放 */
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(111, 130, 96, 0.45);
+  border-radius: 8px;
+  padding: 2px 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 80px;
+}
+.etextarea {
+  min-height: 88px;
+  line-height: 1.85;
+  resize: vertical;
+  display: block;
+}
+.edate { width: auto; }
+
+/* 图片:编辑模式外裹一层,加更换按钮 */
+.eimg-block { position: relative; display: inline-block; max-width: 100%; }
+.eimg-btn {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 20;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 2px 10px rgba(92, 104, 86, 0.28);
+}
+.eimg-btn:hover { background: #fff; }
+/* 没有图片时:占位的添加按钮 */
+.eimg-btn.eimg-add {
+  position: static;
+  display: inline-block;
+  margin: 6px 0;
+  border: 1.5px dashed rgba(111, 130, 96, 0.5);
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--ink-2);
+}
+.eimg-err {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 20;
+  font-size: 11px;
+  color: #b4432f;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+/* 卡片删除按钮(编辑模式才显示) */
+.edel-host { position: relative; }
+.edel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 30;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: none;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(208, 106, 88, 0.5);
+  color: #b4432f;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(92, 104, 86, 0.22);
+  transition: all 0.15s;
+}
+.edel:hover {
+  background: rgba(208, 106, 88, 0.12);
+  transform: scale(1.08);
+}
+body.editing .edel { display: grid; }
+
+/* 列表添加按钮(编辑模式才显示) */
+.eadd {
+  display: none;
+  width: 100%;
+  padding: 15px;
+  margin-top: 12px;
+  border: 1.5px dashed rgba(111, 130, 96, 0.5);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--ink-2);
+  font-size: 14.5px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.eadd:hover { background: rgba(255, 255, 255, 0.62); color: var(--ink); }
+body.editing .eadd { display: block; }
+
+/* 编辑开关 FAB(左下角,已连接且未在编辑时) */
+.efab {
+  position: fixed;
+  left: 22px;
+  bottom: 22px;
+  z-index: 1500;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  color: var(--ink);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.efab:hover { transform: translateY(-3px); }
+
+/* 编辑模式下的保存条 */
+.ebar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 1600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  max-width: calc(100vw - 24px);
+}
+.ebar-state {
+  font-size: 13px;
+  color: var(--ink-2);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.ebar .btn { padding: 7px 16px; font-size: 13px; white-space: nowrap; }
+
+.ebar-err {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(82px + env(safe-area-inset-bottom));
+  z-index: 1600;
+  max-width: calc(100vw - 32px);
+  font-size: 13px;
+  line-height: 1.7;
+  color: #b4432f;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(208, 106, 88, 0.5);
+  padding: 10px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(92, 104, 86, 0.2);
+}
+.etoast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(82px + env(safe-area-inset-bottom));
+  z-index: 1600;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: #3f7d33;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(111, 158, 88, 0.5);
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(92, 104, 86, 0.2);
+}
+
+/* 编辑时隐藏音乐胶囊,避免与保存条打架 */
+body.editing .tape { display: none; }
+
+@media (max-width: 900px) {
+  .efab {
+    left: 14px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    width: 46px;
+    height: 46px;
+    font-size: 17px;
+  }
+  .ebar { bottom: calc(88px + env(safe-area-inset-bottom)); flex-wrap: wrap; justify-content: center; }
+  .ebar-err,
+  .etoast { bottom: calc(150px + env(safe-area-inset-bottom)); }
+}
