@@ -165,11 +165,15 @@ body {
 }
 
 /* 液态折射模式(Chromium,由 LiquidGlass 组件检测启用):
-   降低雾度、接入 SVG 透镜滤镜——玻璃边缘真实弯折背景 + 色散 + 液感扰动 */
+   降低雾度、接入 SVG 透镜滤镜——玻璃边缘真实弯折背景 + 色散 + 液感扰动。
+   渐进增强写法:先写所有浏览器都能解析的基础声明,再单独一条追加 url()——
+   不支持 backdrop-filter 引用 SVG 滤镜的浏览器(老 Chromium)会丢弃第二条,
+   保留基础毛玻璃,而不是整条失效连 blur 都失去 */
 body.lg-refract .glass {
   background: rgba(255, 255, 255, 0.42);
-  backdrop-filter: blur(12px) saturate(185%) url(#lg-lens);
+  backdrop-filter: blur(12px) saturate(185%);
   -webkit-backdrop-filter: blur(12px) saturate(185%);
+  backdrop-filter: blur(12px) saturate(185%) url(#lg-lens);
 }
 
 /* 鼠标跟随的液态高光(由 LiquidGlass 组件惯性注入 --mx/--my) */
@@ -384,7 +388,8 @@ label.field {
   .page { padding: 104px 18px 150px; }
   .glass { backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); }
   body.lg-refract .glass {
-    backdrop-filter: blur(10px) saturate(180%) url(#lg-lens);
+    backdrop-filter: blur(10px) saturate(180%);
     -webkit-backdrop-filter: blur(10px) saturate(180%);
+    backdrop-filter: blur(10px) saturate(180%) url(#lg-lens);
   }
 }

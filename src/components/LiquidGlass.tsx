@@ -43,13 +43,19 @@ function makeLensMap(size = 256): string {
 
 export default function LiquidGlass() {
   useEffect(() => {
-    /* ---- 折射支持检测:仅 Chromium 支持 backdrop-filter 引用 SVG 滤镜 ---- */
+    /* ---- 折射支持检测:只有真正能解析 backdrop-filter 引用 SVG 滤镜的浏览器才开启。
+       用精确的 supports 探测(而非仅 UA 猜测):老 Chromium 不支持 url() 时自动降级;
+       Safari/Firefox 的实现与 feImage 组合不可靠,继续排除 ---- */
     let refract = false;
     try {
       const ua = navigator.userAgent;
       const safari = /safari/i.test(ua) && !/chrome|chromium|edg|android/i.test(ua);
       const firefox = /firefox/i.test(ua);
-      refract = !safari && !firefox && typeof CSS !== "undefined" && CSS.supports("backdrop-filter", "blur(1px)");
+      refract =
+        !safari &&
+        !firefox &&
+        typeof CSS !== "undefined" &&
+        CSS.supports("backdrop-filter", "blur(1px) url(#lg-probe)");
     } catch {
       /* ignore */
     }
@@ -63,12 +69,12 @@ export default function LiquidGlass() {
         svg.style.cssText = "position:fixed;width:0;height:0;pointer-events:none;";
         svg.innerHTML = `<filter id="lg-lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
           <feImage href="${map}" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="lens"/>
-          <feDisplacementMap in="SourceGraphic" in2="lens" scale="56" xChannelSelector="R" yChannelSelector="G" result="refr"/>
+          <feDisplacementMap in="SourceGraphic" in2="lens" scale="80" xChannelSelector="R" yChannelSelector="G" result="refr"/>
           <feColorMatrix in="refr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="chR"/>
-          <feOffset in="chR" dx="0.8" dy="0" result="chRo"/>
+          <feOffset in="chR" dx="1.5" dy="0" result="chRo"/>
           <feColorMatrix in="refr" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="chG"/>
           <feColorMatrix in="refr" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="chB"/>
-          <feOffset in="chB" dx="-0.8" dy="0" result="chBo"/>
+          <feOffset in="chB" dx="-1.5" dy="0" result="chBo"/>
           <feBlend in="chRo" in2="chG" mode="screen" result="rg"/>
           <feBlend in="rg" in2="chBo" mode="screen" result="chroma"/>
           <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="turb"/>
