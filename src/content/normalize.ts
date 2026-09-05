@@ -40,10 +40,10 @@ export function normalizeContent(raw: any): Content {
   }
   delete c.letter;
 
-  // 字段兜底
+  // 字段兜底(friend 档案保留在数据里,老信件的头像匹配不受影响)
   c.site = c.site ?? ({} as any);
-  c.me = normalizeProfile(c.me, "A 面 · 我");
-  c.friend = normalizeProfile(c.friend, "B 面 · 你");
+  c.me = normalizeProfile(c.me, "这是我");
+  c.friend = normalizeProfile(c.friend, "朋友");
   c.timeline = c.timeline ?? [];
   c.photos = c.photos ?? [];
   c.quotes = c.quotes ?? [];

@@ -30,9 +30,9 @@ export default function Story() {
 
   return (
     <div className="page">
-      <div className="page-tag">CHAPTER 01 · OUR STORY</div>
+      <div className="page-tag">CHAPTER 01 · MY STORY</div>
       <h2 className="page-title">时间线</h2>
-      <p className="page-sub">一卷胶片,从初识那一格开始。每一帧,都是我们一起拍下的画面。</p>
+      <p className="page-sub">一卷胶片,从最初那一格开始。每一帧,都是我认真生活的画面。</p>
 
       <div className="profiles">
         <Reveal className="profile-card glass glass-hover">
@@ -53,26 +53,6 @@ export default function Story() {
               <EText value={content.me.signature} onChange={(v) => setProfile("me", { signature: v })} placeholder="一句话签名" />
             </p>
           </div>
-        </Reveal>
-        <div className="profiles-x">×</div>
-        <Reveal className="profile-card glass glass-hover" delay={150}>
-          <div className="profile-info">
-            <b>
-              <EText value={content.friend.name} onChange={(v) => setProfile("friend", { name: v })} placeholder="名字" />
-            </b>
-            <span className="role">
-              <EText value={content.friend.role} onChange={(v) => setProfile("friend", { role: v })} placeholder="角色" />
-            </span>
-            <p>
-              <EText value={content.friend.signature} onChange={(v) => setProfile("friend", { signature: v })} placeholder="一句话签名" />
-            </p>
-          </div>
-          <EImage
-            imgClassName="profile-avatar"
-            src={content.friend.avatar}
-            alt={content.friend.name}
-            onChange={(url) => setProfile("friend", { avatar: url })}
-          />
         </Reveal>
       </div>
 

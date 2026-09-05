@@ -34,13 +34,13 @@ export default function Home() {
   return (
     <div className="home">
       <div className="home-tag">
-        OUR TAPE · SINCE <EDate value={s.metDate} onChange={(v) => setSite({ metDate: v })} />
+        MY SPACE · SINCE <EDate value={s.metDate} onChange={(v) => setSite({ metDate: v })} />
       </div>
       <h1 className="home-title iri-text">
-        <EText value={s.title} onChange={(v) => setSite({ title: v })} placeholder="OUR TAPE" />
+        <EText value={s.title} onChange={(v) => setSite({ title: v })} placeholder="MY SPACE" />
       </h1>
       <div className="home-subtitle">
-        <EText value={s.subtitle} onChange={(v) => setSite({ subtitle: v })} placeholder="副标题" fallback="我们的胶片" />
+        <EText value={s.subtitle} onChange={(v) => setSite({ subtitle: v })} placeholder="副标题" fallback="我的个人空间" />
       </div>
 
       <div className="home-quote glass">
@@ -53,7 +53,7 @@ export default function Home() {
       </div>
 
       <div className="home-counter glass">
-        <div className="home-counter-label">— 我们已并肩走过 —</div>
+        <div className="home-counter-label">— 我已走过 —</div>
         <div className="home-days iri-text">
           {t ? t.days : "—"}
           <span className="home-days-unit">天</span>

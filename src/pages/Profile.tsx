@@ -6,10 +6,9 @@ import type { Profile } from "../content/types";
 
 /** 名片:头像可上传,所有字段行内可改 */
 function ProfileCard({
-  p, side, delay, edit,
+  p, delay, edit,
 }: {
   p: Profile;
-  side: "A" | "B";
   delay: number;
   edit: (fn: (p: Profile) => Profile) => void;
 }) {
@@ -26,7 +25,7 @@ function ProfileCard({
   return (
     <Reveal delay={delay}>
       <div className="pcard glass">
-        <div className="pcard-side mono">SIDE {side}</div>
+        <div className="pcard-side mono">MY CARD</div>
 
         <div className="pcard-avatar-wrap">
           <EImage src={p.avatar} alt={p.name} onChange={(url) => set({ avatar: url })} imgClassName="pcard-avatar" />
@@ -99,32 +98,24 @@ function ProfileCard({
   );
 }
 
-/** 个人主页:两个人的名片,信件头像等信息都从这里调用 */
+/** 关于我:个人名片,信件头像等信息都从这里调用 */
 export default function ProfilePage() {
   const { content, update } = useContent();
   if (!content) return null;
 
   return (
     <div className="page">
-      <div className="page-tag">CHAPTER 00 · US</div>
-      <h2 className="page-title">我们</h2>
+      <div className="page-tag">CHAPTER 00 · ME</div>
+      <h2 className="page-title">关于我</h2>
       <p className="page-sub">
-        两张名片,一份档案。头像和名字会自动用在信件墙上——所以记得上传一张好看的照片。
+        一张名片,一份档案。头像和名字会自动用在信件墙上——所以记得上传一张好看的照片。
       </p>
 
       <div className="profile-page-grid">
         <ProfileCard
           p={content.me}
-          side="A"
           delay={0}
           edit={(fn) => update((c) => ({ ...c, me: fn(c.me) }))}
-        />
-        <div className="profile-page-x mono">&amp;</div>
-        <ProfileCard
-          p={content.friend}
-          side="B"
-          delay={140}
-          edit={(fn) => update((c) => ({ ...c, friend: fn(c.friend) }))}
         />
       </div>
     </div>

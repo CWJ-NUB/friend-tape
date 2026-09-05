@@ -44,7 +44,7 @@ export default function Giscus() {
           <p style={{ color: "var(--ink-2)", lineHeight: 2, fontSize: 15 }}>
             留言板还没有接通。<br />
             部署到 GitHub 后,到「编辑中心 → 全站设置」填写 giscus 配置即可启用,<br />
-            你和哥就都能在这里留下想说的话。
+            你和来访的朋友就都能在这里留下想说的话。
           </p>
           <a
             className="mono"

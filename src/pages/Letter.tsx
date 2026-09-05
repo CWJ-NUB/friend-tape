@@ -9,16 +9,17 @@ function findAvatar(content: Content, name: string): Profile | null {
   const n = (name || "").trim();
   if (!n) return null;
   const eq = (a: string) => (a || "").trim() === n;
+  // friend 档案保留在数据里,老信件的头像不受改版影响
   const hit = [content.me, content.friend].find((p) => eq(p.name) || eq(p.nickname));
   return hit?.avatar ? hit : null;
 }
 
 /**
- * 信件墙:两人各写各的,一人一封。
+ * 信件墙:一封一封收在这面墙上。
  * 点击信封卡 → 玻璃信封弹层自动播放拆信动画(封蜡弹开 → 封口翻起 → 信纸升起)
  * → 玻璃信卡浮现正文。
  * 编辑模式:卡片上的收发件人/标题/日期可直接改,点开信卡可改正文。
- * 寄件人在「我们」页上传过头像的,封蜡显示头像而非首字。
+ * 寄件人在「关于我」页上传过头像的,封蜡显示头像而非首字。
  */
 export default function Letter() {
   const { content, update, editing } = useContent();
@@ -75,7 +76,7 @@ export default function Letter() {
       <div className="page-tag">CHAPTER 03 · LETTERS</div>
       <h2 className="page-title">信件墙</h2>
       <p className="page-sub">
-        有些话当面说不出口,就写成信。这里一人一封——你写给他,他写给你,谁也不许赖账。
+        有些话当面说不出口,就写成信。一封一封,都收在这面墙上。
       </p>
 
       {content.letters.length === 0 ? (

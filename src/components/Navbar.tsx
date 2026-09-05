@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 
 const LINKS = [
-  { to: "/profile", label: "我们" },
+  { to: "/profile", label: "关于我" },
   { to: "/story", label: "时间线" },
   { to: "/gallery", label: "相册" },
   { to: "/letter", label: "信件墙" },
@@ -23,8 +23,8 @@ export default function Navbar() {
         <Link to="/" className="nav-brand">
           <span className="nav-brand-dot" />
           <span>
-            <b>OUR TAPE</b>
-            <span>我们的胶片</span>
+            <b>MY SPACE</b>
+            <span>个人空间</span>
           </span>
         </Link>
         <div className="nav-links">
@@ -42,7 +42,7 @@ export default function Navbar() {
       {/* 移动端品牌胶囊 */}
       <Link to="/" className="nav-chip glass no-spark">
         <span className="nav-brand-dot" />
-        <b>OUR TAPE</b>
+        <b>MY SPACE</b>
       </Link>
 
       {/* 移动端 Dock */}
@@ -52,16 +52,13 @@ export default function Navbar() {
             首页
           </NavLink>
           <NavLink to="/profile" className={({ isActive }) => (isActive ? "active" : "")}>
-            我们
+            关于我
           </NavLink>
           <NavLink to="/story" className={({ isActive }) => (isActive ? "active" : "")}>
             时间线
           </NavLink>
           <NavLink to="/gallery" className={({ isActive }) => (isActive ? "active" : "")}>
             相册
-          </NavLink>
-          <NavLink to="/letter" className={({ isActive }) => (isActive ? "active" : "")}>
-            信件
           </NavLink>
           <button onClick={() => setSheet(true)} aria-label="更多">
             更多 ⋯
@@ -74,7 +71,7 @@ export default function Navbar() {
         <div className="nav-sheet no-spark" onClick={() => setSheet(false)}>
           <div className="nav-sheet-panel glass" onClick={(e) => e.stopPropagation()}>
             <div className="sheet-title">MORE · 更多板块</div>
-            {LINKS.slice(4).map((l) => (
+            {LINKS.slice(3).map((l) => (
               <Link key={l.to} to={l.to} onClick={() => setSheet(false)}>
                 {l.label}
                 <span className="mono">{loc.pathname === l.to ? "● 当前" : "→"}</span>

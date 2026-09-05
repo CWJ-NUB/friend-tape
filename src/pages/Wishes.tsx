@@ -38,7 +38,7 @@ export default function Wishes() {
       <div className="page-tag">CHAPTER 05 · TO BE CONTINUED</div>
       <h2 className="page-title">未来之约</h2>
       <p className="page-sub">
-        这卷胶片还没有拍完。下面这些事,我们说好了要一起做——
+        这卷胶片还没有拍完。下面这些事,说好了要去做——
       </p>
 
       <div className="wishes-note">

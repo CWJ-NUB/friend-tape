@@ -1,19 +1,10 @@
-/* ============ 个人主页(我们):双人名片 + 标签 + 自我介绍 ============ */
+/* ============ 关于我:单人名片 + 标签 + 自我介绍 ============ */
 
 .profile-page-grid {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 18px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 560px);
+  justify-content: center;
   margin-top: 26px;
-}
-
-.profile-page-x {
-  align-self: center;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--ink-3);
-  letter-spacing: 0.1em;
 }
 
 .pcard {
@@ -175,7 +166,5 @@
 }
 
 @media (max-width: 780px) {
-  .profile-page-grid { grid-template-columns: 1fr; }
-  .profile-page-x { text-align: center; }
   .pcard { padding: 26px 20px 22px; }
 }

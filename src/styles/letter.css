@@ -35,7 +35,7 @@
   font-family: var(--font-serif);
   overflow: hidden;
 }
-/* 寄件人头像(在「我们」页上传后自动显示) */
+/* 寄件人头像(在「关于我」页上传后自动显示) */
 .lcard-seal img,
 .envm-seal img {
   width: 100%;

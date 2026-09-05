@@ -3,17 +3,16 @@ import { useContent } from "../content/ContentContext";
 import type { Content, LetterContent, Photo, Profile, Quote, TimelineEvent, Wish } from "../content/types";
 import { compressImage, fetchContent, inferGhTarget, loadAuth, locateRepoByToken, pushContent, saveAuth, type GhAuth } from "../lib/github";
 
-type Tab = "site" | "me" | "friend" | "timeline" | "photos" | "quotes" | "wishes" | "letters";
+type Tab = "site" | "me" | "timeline" | "photos" | "quotes" | "wishes" | "letters";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "site", label: "01 · 全站设置" },
   { id: "me", label: "02 · 我的名片" },
-  { id: "friend", label: "03 · 哥的名片" },
-  { id: "timeline", label: "04 · 时间线" },
-  { id: "photos", label: "05 · 照片墙" },
-  { id: "quotes", label: "06 · 那些话" },
-  { id: "wishes", label: "07 · 未来之约" },
-  { id: "letters", label: "08 · 信件墙" },
+  { id: "timeline", label: "03 · 时间线" },
+  { id: "photos", label: "04 · 照片墙" },
+  { id: "quotes", label: "05 · 那些话" },
+  { id: "wishes", label: "06 · 未来之约" },
+  { id: "letters", label: "07 · 信件墙" },
 ];
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -216,7 +215,7 @@ export default function Admin() {
         <div className="page-tag">CONTROL ROOM · EDIT MODE</div>
         <h2 className="page-title">编辑中心</h2>
         <p className="page-sub">
-          你和哥都可以在这里修改网站的任何内容,改完点「保存」即可,约一分钟后网站自动更新。
+          你可以在这里修改网站的任何内容,改完点「保存」即可,约一分钟后网站自动更新。
         </p>
 
         <div className="glass no-spark" style={{ padding: 26 }}>
@@ -224,7 +223,7 @@ export default function Admin() {
             <b>首次使用只需一步:</b>
             点{" "}
             <a
-              href="https://github.com/settings/tokens/new?description=OUR-TAPE&scopes=repo"
+              href="https://github.com/settings/tokens/new?description=MY-SPACE&scopes=repo"
               target="_blank"
               rel="noreferrer"
             >
@@ -233,7 +232,7 @@ export default function Admin() {
             (所需权限已自动勾好),拉到底点 <code>Generate token</code>,把生成的一串字符粘贴到下面,点「连接」就完成了。
             用户名、仓库名这些都不用管,会自动识别。
             <br />
-            <span className="admin-steps-sub">(哥如果收到了你发的邀请链接,直接点开链接就能编辑,跳过以上所有步骤。)</span>
+            <span className="admin-steps-sub">(如果收到了别人发来的邀请链接,直接点开链接就能编辑,跳过以上所有步骤。)</span>
           </div>
 
           <div className="admin-form-row">
@@ -302,9 +301,9 @@ export default function Admin() {
       {invite && (
         <div className="invite-modal no-spark" onClick={() => setInvite(false)}>
           <div className="invite-panel glass" onClick={(e) => e.stopPropagation()}>
-            <h3>邀请哥一起编辑</h3>
+            <h3>邀请朋友一起编辑</h3>
             <p className="invite-desc">
-              把下面这条链接发给他(微信/QQ 都行)。<b>他点开链接就会直接进入编辑模式</b>,
+              把下面这条链接发出去(微信/QQ 都行)。<b>对方点开链接就会直接进入编辑模式</b>,
               不需要注册、不需要 Token、不需要任何设置——改完点「保存到 GitHub」即可。
             </p>
             <div className="invite-url mono">{inviteUrl}</div>
@@ -313,7 +312,7 @@ export default function Admin() {
               <button className="btn" onClick={() => setInvite(false)}>关闭</button>
             </div>
             <p className="invite-note">
-              安全提示:链接里含有编辑凭证,只发给他本人,别发到群里。万一泄露,
+              安全提示:链接里含有编辑凭证,只发给信任的人,别发到群里。万一泄露,
               到 GitHub → Settings → Developer settings → Tokens 里删除这个 Token 再重新生成一个即可。
             </p>
           </div>
@@ -333,8 +332,7 @@ export default function Admin() {
 
         <div className="admin-section glass no-spark">
           {tab === "site" && <SiteForm d={draft} edit={edit} />}
-          {tab === "me" && <ProfileForm title="我的名片" hint="你的个人信息,展示在时间线页顶部。" p={draft.me} edit={(fn) => edit((d) => ({ ...d, me: fn(d.me) }))} />}
-          {tab === "friend" && <ProfileForm title="哥的名片" hint="王怀章的个人信息,同样展示在时间线页顶部。" p={draft.friend} edit={(fn) => edit((d) => ({ ...d, friend: fn(d.friend) }))} />}
+          {tab === "me" && <ProfileForm title="我的名片" hint="你的个人信息,展示在「关于我」页和时间线页顶部。" p={draft.me} edit={(fn) => edit((d) => ({ ...d, me: fn(d.me) }))} />}
           {tab === "timeline" && <TimelineForm d={draft} edit={edit} />}
           {tab === "photos" && <PhotosForm d={draft} edit={edit} />}
           {tab === "quotes" && <QuotesForm d={draft} edit={edit} />}
@@ -372,7 +370,7 @@ function SiteForm({ d, edit }: { d: Content; edit: (fn: (d: Content) => Content)
           <textarea className="textarea" value={s.heroNote} onChange={(e) => set({ heroNote: e.target.value })} />
         </div>
         <div>
-          <label className="field">相识日期(天数从此起算)</label>
+          <label className="field">起始日期(天数从此起算)</label>
           <input className="input" type="date" value={s.metDate} onChange={(e) => set({ metDate: e.target.value })} />
         </div>
         <div>
@@ -380,7 +378,7 @@ function SiteForm({ d, edit }: { d: Content; edit: (fn: (d: Content) => Content)
           <input className="input" value={s.musicTitle} onChange={(e) => set({ musicTitle: e.target.value })} />
         </div>
         <div className="full">
-          <label className="field">音乐链接(mp3 直链,可换成对你们有意义的歌)</label>
+          <label className="field">音乐链接(QQ音乐/网易云 分享链接或 mp3 直链)</label>
           <input className="input" value={s.musicUrl} onChange={(e) => set({ musicUrl: e.target.value })} />
         </div>
       </div>
@@ -459,7 +457,7 @@ function ProfileForm({
           <textarea
             className="textarea"
             value={p.about}
-            placeholder="写点自我介绍,会展示在「我们」页…"
+            placeholder="写点自我介绍,会展示在「关于我」页…"
             onChange={(e) => set({ about: e.target.value })}
           />
         </div>
@@ -620,7 +618,7 @@ function QuotesForm({ d, edit }: { d: Content; edit: (fn: (d: Content) => Conten
           </div>
         </div>
       ))}
-      <button className="btn admin-add" onClick={() => setList([...d.quotes, { id: uid(), text: "新的一句话…", author: "哥", date: "" }])}>
+      <button className="btn admin-add" onClick={() => setList([...d.quotes, { id: uid(), text: "新的一句话…", author: "某人", date: "" }])}>
         ＋ 添加一句话
       </button>
     </>

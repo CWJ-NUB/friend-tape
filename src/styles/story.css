@@ -1,10 +1,9 @@
-/* ============ 时间线页(双主角名片 + 中轴故事) ============ */
+/* ============ 时间线页(个人名片 + 中轴故事) ============ */
 
 .profiles {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 18px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 480px);
+  justify-content: center;
   margin-bottom: 72px;
 }
 
@@ -45,14 +44,6 @@
   font-size: 13px;
   color: var(--ink-2);
   line-height: 1.8;
-}
-
-.profiles-x {
-  align-self: center;
-  font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--ink-3);
 }
 
 /* --- 中轴时间线 --- */
@@ -138,8 +129,6 @@
 }
 
 @media (max-width: 780px) {
-  .profiles { grid-template-columns: 1fr; }
-  .profiles-x { text-align: center; }
   .timeline-axis { left: 8px; }
   .tl-event, .tl-event.right {
     width: 100%;
