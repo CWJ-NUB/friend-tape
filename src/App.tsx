@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import ProjectorTransition from "./components/ProjectorTransition";
 import Sparkle from "./components/Sparkle";
 import MusicPlayer from "./components/MusicPlayer";
+import PassGate from "./components/PassGate";
 import { EditUI } from "./components/Editable";
 import Home from "./pages/Home";
 import ProfilePage from "./pages/Profile";
@@ -56,6 +57,7 @@ function Shell() {
       <MusicPlayer />
       <Sparkle />
       <EditUI />
+      <PassGate />
     </>
   );
 }

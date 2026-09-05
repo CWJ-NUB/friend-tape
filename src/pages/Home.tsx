@@ -4,7 +4,7 @@ import { useContent } from "../content/ContentContext";
 import { EDate, EText } from "../components/Editable";
 import type { Content } from "../content/types";
 
-/** 实时天数:自相识日起,每秒刷新 */
+/** 实时天数:自出生日起,每秒刷新 */
 function useDaysSince(metDate: string) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -24,7 +24,7 @@ function useDaysSince(metDate: string) {
 
 export default function Home() {
   const { content, update } = useContent();
-  const t = useDaysSince(content?.site.metDate ?? "2025-05-10");
+  const t = useDaysSince(content?.site.metDate ?? "2009-03-04");
   if (!content) return null;
 
   const s = content.site;
@@ -53,7 +53,7 @@ export default function Home() {
       </div>
 
       <div className="home-counter glass">
-        <div className="home-counter-label">— 我已走过 —</div>
+        <div className="home-counter-label">— 我来到这世界 —</div>
         <div className="home-days iri-text">
           {t ? t.days : "—"}
           <span className="home-days-unit">天</span>

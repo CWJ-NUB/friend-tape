@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
+import { useContent } from "../content/ContentContext";
 
 const LINKS = [
   { to: "/profile", label: "关于我" },
@@ -15,6 +16,14 @@ const LINKS = [
 export default function Navbar() {
   const [sheet, setSheet] = useState(false);
   const loc = useLocation();
+  const nav = useNavigate();
+  const { unlocked, openGate } = useContent();
+
+  /** 编辑中心入口:未通过口令验证先弹验证,通过后自动跳转 */
+  const goAdmin = () => {
+    if (unlocked) nav("/admin");
+    else openGate(() => nav("/admin"));
+  };
 
   return (
     <>
@@ -33,9 +42,9 @@ export default function Navbar() {
               {l.label}
             </NavLink>
           ))}
-          <NavLink to="/admin" className={({ isActive }) => (isActive ? "active" : "")}>
+          <button className="nav-edit-btn" onClick={goAdmin}>
             编辑
-          </NavLink>
+          </button>
         </div>
       </nav>
 
@@ -77,10 +86,16 @@ export default function Navbar() {
                 <span className="mono">{loc.pathname === l.to ? "● 当前" : "→"}</span>
               </Link>
             ))}
-            <Link to="/admin" onClick={() => setSheet(false)}>
+            <button
+              className="nav-sheet-edit"
+              onClick={() => {
+                setSheet(false);
+                goAdmin();
+              }}
+            >
               编辑中心
               <span className="mono">⚙</span>
-            </Link>
+            </button>
           </div>
         </div>
       )}

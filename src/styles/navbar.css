@@ -62,7 +62,8 @@
   gap: 2px;
 }
 
-.nav-pill .nav-links a {
+.nav-pill .nav-links a,
+.nav-pill .nav-links .nav-edit-btn {
   font-size: 13.5px;
   font-weight: 500;
   color: var(--ink-2);
@@ -71,8 +72,13 @@
   border-radius: 999px;
   transition: all 0.22s ease;
   white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
-.nav-pill .nav-links a:hover { color: var(--ink); background: rgba(255, 255, 255, 0.55); }
+.nav-pill .nav-links a:hover,
+.nav-pill .nav-links .nav-edit-btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.55); }
 .nav-pill .nav-links a.active {
   color: #fff;
   background: var(--iri);
@@ -171,8 +177,10 @@
   padding: 8px 0 12px;
 }
 
-.nav-sheet-panel a {
+.nav-sheet-panel a,
+.nav-sheet-panel .nav-sheet-edit {
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
@@ -182,8 +190,13 @@
   padding: 15px 18px;
   border-radius: 18px;
   transition: background 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
-.nav-sheet-panel a:hover { background: rgba(255, 255, 255, 0.6); }
+.nav-sheet-panel a:hover,
+.nav-sheet-panel .nav-sheet-edit:hover { background: rgba(255, 255, 255, 0.6); }
 .nav-sheet-panel a .mono { font-size: 10px; color: var(--ink-3); }
 
 /* --- 响应式切换 --- */

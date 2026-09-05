@@ -3,17 +3,18 @@
     "title": "MY SPACE",
     "subtitle": "陈为佳的个人空间",
     "heroQuote": "有些话当面说不出口，就放在这里吧。",
-    "heroNote": "这是一卷只属于我的胶片。从 2025 年 5 月 10 日开始，认真显影每一格，直到今天，仍在继续。",
-    "metDate": "2025-05-10",
+    "heroNote": "这是一卷只属于我的胶片。从我来到这个世界的那天起,认真显影每一格,直到今天,仍在继续。",
+    "metDate": "2009-03-04",
     "musicUrl": "https://c6.y.qq.com/base/fcgi-bin/u?__=EyLcuwIg9nsk008&channelId=10036163&hosteuin=owvkNKEi7w4iNn**&openinqqmusic=1&platform=11&songmid=004P9zLK3JjSMX&type=0",
     "musicTitle": "占位音乐 · 可在编辑中心更换",
     "giscus": {
-      "repo": "",
-      "repoId": "",
+      "repo": "CWJ-NUB/friend-tape",
+      "repoId": "R_kgDOUOgseA",
       "category": "Announcements",
-      "categoryId": ""
+      "categoryId": "DIC_kwDOUOgseM4DE61S"
     },
-    "updatedAt": "2026-09-04"
+    "updatedAt": "2026-09-04",
+    "editPassHash": "62224287fb715f939a6f0bbcf3c84833f50f7feeeeb7f68d06bd0b8c821e7fb0"
   },
   "me": {
     "name": "陈为佳",

@@ -56,6 +56,8 @@ export interface SiteConfig {
   musicTitle: string;
   giscus: GiscusConfig;
   updatedAt: string;
+  /** 编辑口令的 SHA-256(十六进制),为空表示未设置 */
+  editPassHash?: string;
 }
 
 /** 一封信:双向信墙中,两人各写各的 */

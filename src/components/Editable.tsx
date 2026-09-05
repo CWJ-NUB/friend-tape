@@ -181,7 +181,7 @@ export function EAdd({ label, onClick }: { label: string; onClick: () => void })
 
 /* ---------------- 全局编辑 UI:开关 FAB + 保存条 ---------------- */
 export function EditUI() {
-  const { auth, editing, dirty, startEditing, discardEditing, save } = useContent();
+  const { auth, unlocked, openGate, editing, dirty, startEditing, discardEditing, save } = useContent();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [toast, setToast] = useState("");
@@ -190,7 +190,11 @@ export function EditUI() {
 
   if (!editing) {
     return (
-      <button className="efab glass no-spark" title="开启编辑模式" onClick={startEditing}>
+      <button
+        className="efab glass no-spark"
+        title="开启编辑模式"
+        onClick={() => (unlocked ? startEditing() : openGate(startEditing))}
+      >
         ✎
       </button>
     );

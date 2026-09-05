@@ -42,6 +42,7 @@ export function normalizeContent(raw: any): Content {
 
   // 字段兜底(friend 档案保留在数据里,老信件的头像匹配不受影响)
   c.site = c.site ?? ({} as any);
+  c.site.giscus = c.site.giscus ?? { repo: "", repoId: "", category: "", categoryId: "" };
   c.me = normalizeProfile(c.me, "这是我");
   c.friend = normalizeProfile(c.friend, "朋友");
   c.timeline = c.timeline ?? [];

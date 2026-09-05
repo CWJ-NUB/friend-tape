@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useContent } from "../content/ContentContext";
+import { useContent, sha256Hex } from "../content/ContentContext";
 import type { Content, LetterContent, Photo, Profile, Quote, TimelineEvent, Wish } from "../content/types";
 import { compressImage, fetchContent, inferGhTarget, loadAuth, locateRepoByToken, pushContent, saveAuth, type GhAuth } from "../lib/github";
+import { PassGateForm } from "../components/PassGate";
 
 type Tab = "site" | "me" | "timeline" | "photos" | "quotes" | "wishes" | "letters";
 
@@ -18,7 +19,7 @@ const TABS: { id: Tab; label: string }[] = [
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 export default function Admin() {
-  const { applyContent, refreshAuth } = useContent();
+  const { content, applyContent, refreshAuth, unlocked, lock } = useContent();
   const [auth, setAuth] = useState<GhAuth | null>(null);
   const [sha, setSha] = useState("");
   const [draft, setDraft] = useState<Content | null>(null);
@@ -209,6 +210,24 @@ export default function Admin() {
     }
   };
 
+  // 口令门禁:未通过验证时,不展示任何编辑/连接功能
+  if (!unlocked) {
+    return (
+      <div className="page admin-login" style={{ maxWidth: 560 }}>
+        <div className="page-tag">CONTROL ROOM · LOCKED</div>
+        <h2 className="page-title">编辑中心</h2>
+        <p className="page-sub">编辑功能已启用口令保护,验证通过后才能继续。</p>
+        {content ? (
+          <PassGateForm />
+        ) : (
+          <div className="glass no-spark" style={{ padding: "40px 24px", textAlign: "center", color: "var(--ink-3)", fontSize: 13, letterSpacing: "0.2em" }}>
+            LOADING…
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (!auth || !draft) {
     return (
       <div className="page admin-login">
@@ -296,6 +315,7 @@ export default function Admin() {
         <button className="btn" disabled={busy} onClick={pull}>↻ 拉取最新</button>
         <button className="btn" onClick={() => setInvite(true)}>✉ 邀请</button>
         <button className="btn" onClick={disconnect}>断开</button>
+        <button className="btn" onClick={lock} title="清除本机的解锁状态,需要重新输入口令">🔒 锁定</button>
       </div>
 
       {invite && (
@@ -370,7 +390,7 @@ function SiteForm({ d, edit }: { d: Content; edit: (fn: (d: Content) => Content)
           <textarea className="textarea" value={s.heroNote} onChange={(e) => set({ heroNote: e.target.value })} />
         </div>
         <div>
-          <label className="field">起始日期(天数从此起算)</label>
+          <label className="field">出生日期(首页计时从此起算)</label>
           <input className="input" type="date" value={s.metDate} onChange={(e) => set({ metDate: e.target.value })} />
         </div>
         <div>
@@ -385,7 +405,7 @@ function SiteForm({ d, edit }: { d: Content; edit: (fn: (d: Content) => Content)
 
       <h3 style={{ marginTop: 34 }}>留言板(giscus)</h3>
       <p className="hint">
-        前往 <b>giscus.app</b>,填入仓库名生成配置,把 repo / repoId / category / categoryId 抄到这里,留言板即启用(仓库需开启 Discussions)。
+        留言板基于 GitHub Discussions(已为你的仓库配置好,无需改动)。评论者需登录 GitHub 后留言。
       </p>
       <div className="admin-form-row">
         <div>
@@ -405,7 +425,78 @@ function SiteForm({ d, edit }: { d: Content; edit: (fn: (d: Content) => Content)
           <input className="input" value={s.giscus.categoryId} onChange={(e) => set({ giscus: { ...s.giscus, categoryId: e.target.value } })} />
         </div>
       </div>
+
+      <h3 style={{ marginTop: 34 }}>编辑口令</h3>
+      <p className="hint">
+        进入编辑模式前需要输入此口令验证身份。修改后记得点上方「保存到 GitHub」才会生效。
+      </p>
+      <PassEditor hasPass={!!s.editPassHash} onSet={(hash) => set({ editPassHash: hash })} />
     </>
+  );
+}
+
+/* ---------- 表单:编辑口令 ---------- */
+function PassEditor({ hasPass, onSet }: { hasPass: boolean; onSet: (hash: string | undefined) => void }) {
+  const [p1, setP1] = useState("");
+  const [p2, setP2] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const apply = async (pass: string | null) => {
+    setBusy(true);
+    try {
+      const hash = pass ? await sha256Hex(pass) : undefined;
+      onSet(hash);
+      setP1("");
+      setP2("");
+      setMsg(pass ? "✓ 已更新,保存到 GitHub 后生效" : "✓ 已清除口令,保存后编辑将不再需要验证");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submit = async () => {
+    if (!p1.trim()) return;
+    if (p1 !== p2) {
+      setMsg("两次输入不一致,请重新输入");
+      return;
+    }
+    if (p1.trim().length < 4) {
+      setMsg("口令至少 4 位,建议字母+数字混合");
+      return;
+    }
+    await apply(p1.trim());
+  };
+
+  return (
+    <div className="admin-form-row">
+      <div>
+        <label className="field">新口令{hasPass ? "(当前已设置)" : "(尚未设置)"}</label>
+        <input className="input" type="password" value={p1} onChange={(e) => setP1(e.target.value)} placeholder="输入新口令…" />
+      </div>
+      <div>
+        <label className="field">确认新口令</label>
+        <input
+          className="input"
+          type="password"
+          value={p2}
+          onChange={(e) => setP2(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          placeholder="再输一遍…"
+        />
+      </div>
+      <div className="full" style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <button className="btn btn-iri" disabled={busy || !p1.trim() || !p2.trim()} onClick={submit}>
+          更新口令
+        </button>
+        {hasPass && (
+          <button className="btn" disabled={busy} onClick={() => apply(null)} title="清除口令,任何人都可以编辑(不推荐)">
+            清除口令
+          </button>
+        )}
+        {msg && <span style={{ fontSize: 12.5, color: "var(--ink-2)" }}>{msg}</span>}
+      </div>
+    </div>
   );
 }
 
