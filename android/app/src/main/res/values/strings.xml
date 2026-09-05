@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MY SPACE</string>
+    <string name="title_activity_main">MY SPACE</string>
+    <string name="package_name">cn.cwj.friendspace</string>
+    <string name="custom_url_scheme">cn.cwj.friendspace</string>
+</resources>

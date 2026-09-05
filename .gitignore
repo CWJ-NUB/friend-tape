@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Android 打包产物(不入库,keystore 在 android/.gitignore 中忽略)
+MY-SPACE-*.apk
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
