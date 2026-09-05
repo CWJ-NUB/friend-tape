@@ -97,7 +97,7 @@
   border-radius: 999px;
 }
 
-/* --- 移动端:底部 Dock --- */
+/* --- 移动端:底部液态玻璃 Dock(弹簧滑块 + 可拖拽切页) --- */
 .nav-dock {
   display: none;
   position: fixed;
@@ -108,16 +108,51 @@
   border-radius: 26px;
   padding: 8px;
   max-width: calc(100vw - 24px);
+  /* 液态玻璃加深:更亮的面板底 + 厚边光 + 强投影 */
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 14px 38px rgba(92, 104, 86, 0.28),
+    0 2px 8px rgba(92, 104, 86, 0.12),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -2px 3px rgba(255, 255, 255, 0.55),
+    inset 2px 0 3px rgba(255, 255, 255, 0.35),
+    inset -2px 0 3px rgba(255, 255, 255, 0.35);
+  /* 拖拽滑块期间禁用默认触摸行为(滚动/长按菜单) */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .nav-dock-inner {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
-.nav-dock a,
-.nav-dock button {
+/* 弹簧滑块:弹性过冲回弹(cubic-bezier y>1),拖拽时关闭过渡跟手 */
+.nav-dock-pill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 18px;
+  background: var(--iri);
+  box-shadow:
+    0 5px 16px rgba(111, 130, 96, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  z-index: 0;
+  transition:
+    left 0.5s cubic-bezier(0.3, 1.4, 0.35, 1),
+    width 0.5s cubic-bezier(0.3, 1.4, 0.35, 1);
+  will-change: left, width;
+}
+.nav-dock.dragging .nav-dock-pill { transition: none; }
+.nav-dock.dragging { cursor: grabbing; }
+
+.nav-dock .nav-dock-item,
+.nav-dock .nav-dock-more {
+  position: relative;
+  z-index: 1;
   font-size: 12px;
   font-weight: 500;
   color: var(--ink-2);
@@ -126,15 +161,14 @@
   border: none;
   padding: 10px 13px;
   border-radius: 18px;
-  transition: all 0.22s ease;
+  transition: color 0.25s ease, font-weight 0.25s ease;
   white-space: nowrap;
   cursor: pointer;
   font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
 }
-.nav-dock a.active {
+.nav-dock .nav-dock-item.active {
   color: #fff;
-  background: var(--iri);
-  box-shadow: 0 4px 14px rgba(111, 130, 96, 0.35);
   font-weight: 600;
 }
 
@@ -209,10 +243,10 @@
   .nav-chip .nav-brand span { display: none; }
 }
 
-/* 小屏:Dock 六项收窄,避免溢出 */
+/* 小屏:Dock 五项收窄,避免溢出 */
 @media (max-width: 380px) {
-  .nav-dock a, .nav-dock button { padding: 10px 9px; font-size: 11.5px; }
+  .nav-dock .nav-dock-item, .nav-dock .nav-dock-more { padding: 10px 9px; font-size: 11.5px; }
 }
 @media (max-width: 340px) {
-  .nav-dock a, .nav-dock button { padding: 10px 7px; font-size: 11px; }
+  .nav-dock .nav-dock-item, .nav-dock .nav-dock-more { padding: 10px 7px; font-size: 11px; }
 }

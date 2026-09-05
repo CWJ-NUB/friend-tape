@@ -29,11 +29,13 @@
   width: 300px;
   max-width: calc(100vw - 28px);
   padding: 16px 18px 14px;
-  animation: mp-in 0.3s ease both;
+  /* 始终挂载,显隐走过渡:收起后 iframe/音频继续播放 */
+  transition: opacity 0.28s ease, transform 0.28s ease;
 }
-@keyframes mp-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
+.music-panel.mp-hidden {
+  opacity: 0;
+  transform: translateY(14px) scale(0.95);
+  pointer-events: none;
 }
 
 .mp-head { margin-bottom: 12px; }

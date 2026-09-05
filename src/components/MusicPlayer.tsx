@@ -363,16 +363,16 @@ export default function MusicPlayer() {
         </button>
       )}
 
-      {open && (
-        <div className={`music-panel glass no-spark ${playing ? "playing" : ""}`}>
+      {/* 面板始终挂载:收起时仅隐藏——iframe/音频不卸载,音乐继续播放 */}
+      <div className={`music-panel glass no-spark ${open ? "" : "mp-hidden"} ${playing ? "playing" : ""}`}>
           <div className="mp-head">
-            <span className="mp-label">SIDE A · OUR SONG</span>
+            <span className="mp-label">SIDE A · MY SONG</span>
             <b className="mp-title">
               <EText
                 value={content?.site.musicTitle ?? ""}
                 onChange={(v) => setSite({ musicTitle: v })}
                 placeholder="歌名"
-                fallback="OUR SONG"
+                fallback="MY SONG"
               />
             </b>
           </div>
@@ -450,8 +450,7 @@ export default function MusicPlayer() {
               {err && <div className="mp-err">{err}</div>}
             </>
           )}
-        </div>
-      )}
+      </div>
 
       {/* 直链音频:面板收起后继续播放 */}
       {direct?.kind === "audio" && (
