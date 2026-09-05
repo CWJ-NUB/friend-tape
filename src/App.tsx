@@ -4,6 +4,7 @@ import { ContentProvider } from "./content/ContentContext";
 import Navbar from "./components/Navbar";
 import ProjectorTransition from "./components/ProjectorTransition";
 import Sparkle from "./components/Sparkle";
+import LiquidGlass from "./components/LiquidGlass";
 import MusicPlayer from "./components/MusicPlayer";
 import PassGate from "./components/PassGate";
 import { EditUI } from "./components/Editable";
@@ -56,6 +57,7 @@ function Shell() {
       <ProjectorTransition active={transitioning} />
       <MusicPlayer />
       <Sparkle />
+      <LiquidGlass />
       <EditUI />
       <PassGate />
     </>
